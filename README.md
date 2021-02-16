@@ -9,3 +9,7 @@ The presentation I gave at the ADMT21 on this topic is here: https://drive.googl
 A group of ADMT people interested in BBP had a post-ADMT meeting to discuss the proposed test further. I've prepared another presentation with notes/decisions taken: https://drive.google.com/file/d/1JxdmBCS2MhG6qzmHwpmTCb-D5D3uX3qC/view?usp=sharing
 
 I will do my best to generate a "binder" version of this as soon as I can.
+
+I've tried to use functions as much as possible, so you can already extract the functions with the tests (and the adpative median filter).
+
+Any help in tidying things up is very welcome :-)
