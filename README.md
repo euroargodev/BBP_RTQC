@@ -10,6 +10,6 @@ A group of ADMT people interested in BBP had a post-ADMT meeting to discuss the 
 
 I will do my best to generate a "binder" version of this as soon as I can.
 
-I've tried to use functions as much as possible, so you can already extract the functions with the tests (and the adpative median filter).
+I've tried to use functions as much as possible, so you can already extract the functions with the tests (and the adaptive median filter).
 
 Any help in tidying things up is very welcome :-)
