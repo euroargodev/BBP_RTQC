@@ -6,27 +6,11 @@ import glob
 
 # Plotting
 import matplotlib.pyplot as plt
-import matplotlib.colors as colors
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
-import matplotlib.ticker as mticker
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-import matplotlib as mpl
-from matplotlib import dates
-
 import ipdb
 
-from datetime import datetime, timedelta
-from datetime import date
-import cmocean
-import matplotlib.dates as mdates
-import gsw
-from bgc import plot_bbp, plot_flags, medfilt1
 import warnings
 import pickle
 import gc
-from parfor import pmap
-import pandas as pd
 
 from BBP_RTQC_global_vars import *
 from BBP_RTQC_paths import *
@@ -34,6 +18,24 @@ from BBP_RTQC_paths import *
 
 
 warnings.filterwarnings('ignore')
+
+# medfilt1 function similar to Octave's that does not bias extremes of dataset towards zero
+def medfilt1(data, kernel_size, endcorrection='shrinkkernel'):
+     """One-dimensional median filter"""
+     halfkernel = int(kernel_size/2)
+     data = np.asarray(data)
+
+     filtered_data = np.empty(data.shape)
+     filtered_data[:] = np.nan
+
+     for n in range(len(data)):
+         i1 = np.nanmax([0, n-halfkernel])
+         i2 = np.nanmin([len(data), n+halfkernel+1])
+         filtered_data[n] = np.nanmedian(data[i1:i2])
+
+     return filtered_data
+
+
 
 
 # function to define adaptive median filtering based on Christina Schallemberg's suggestion for CHLA
@@ -887,7 +889,6 @@ def QC_wmo(iwmo, VERBOSE=True, SAVEPKL=False):
     all_BBP700 = []
     all_BBP700_QC_flag = []
     all_BBP700_1st_fail = []
-#     all_BBP700_norm = []
 
     all_PROFS = []
     all_LAT = np.empty(len(fn_single_profiles))
