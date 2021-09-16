@@ -264,7 +264,8 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
     imaxPRES = np.where(PRES==maxPRES)[0][0]
     deltaPRES = PRES[imaxPRES] - PRES[imaxPRES-1]
     if deltaPRES>G_DELTAPRES2:
-        print('vertical resolution is too low to check for Parking Hook')
+        if VERBOSE:
+            print('vertical resolution is too low to check for Parking Hook')
         return QC_Flags, QC_1st_failed_test
         
         
@@ -371,7 +372,7 @@ def BBP_Negative_nonsurface_test(BBP, PRES, QC_Flags, QC_1st_failed_test, fn, VE
 
 ##################################################################
 ##################################################################
-def BBP_Noisy_Profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, VERBOSE=False, PLOT=True, SAVEPLOT=False):
+def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, VERBOSE=False, PLOT=True, SAVEPLOT=False):
     # BBP: nparray with all BBP data
     # BBPmf1: smooth BBP array (medfilt1(BBP700, 31)
     # QC_Flags: array with QC flags
@@ -386,7 +387,7 @@ def BBP_Noisy_Profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, 
     # To detect and flag profiles of BBP that are affected by noisy data.
     # <br><br>
     # #### What is done:
-    # Compute <code> res = abs(BBP-medfilt1(BBP, 31))</code>.
+    # Compute <code> res = abs(BBP-medfilt1(BBP))</code>.
     #
     # Flag profiles where at least <code>15%</code> of the profile has <code>res > 0.001</code>  m$^{-1}$.<br>
     # <br><br>
@@ -572,18 +573,21 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test, fn, VERBOSE=F
             # if there are consecutive bins from zero index 
             # and if not all bins contain data
             elif (np.all(test_bin==nonempty)) & (nonempty[-1]<9) & (np.nanmax(PRES) >= bins.max()): 
-                print("shallow profile due to missing data: QC=" + str(QC_all[1]))
+                if VERBOSE:
+                        print("shallow profile due to missing data: QC=" + str(QC_all[1]))
                 QC = QC_all[1]
                 
             # check if max(PRES)<maxPresbin to decide if this was a profile that was programmed to be shallow
-            elif (np.all(test_bin==nonempty)) & (nonempty[-1]<9) & (np.nanmax(PRES) < bins.max()): 
-                print("shallow profile (maxPRES="+str(np.nanmax(PRES))+") dbars. Need more checks...") 
+            elif (np.all(test_bin==nonempty)) & (nonempty[-1]<9) & (np.nanmax(PRES) < bins.max()):
+                if VERBOSE:
+                    print("shallow profile (maxPRES="+str(np.nanmax(PRES))+") dbars. Need more checks...")
 
                 # compute median value below 200 dbars to check for high-deep values
                 iGT200 = np.where(PRES>E_PRESTHRESH)[0]
         
                 if not iGT200.any(): # if there are no data deeper than 200 dbars, then set QC=3 without checking what the values are
-                    print("----profile shallower than 200 dbars: QC=" + str(QC_all[1]))
+                    if VERBOSE:
+                        print("----profile shallower than 200 dbars: QC=" + str(QC_all[1]))
                     QC = QC_all[1]
 
                 else:    
@@ -592,17 +596,20 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test, fn, VERBOSE=F
 
                     # if there are no non-NaN BBP values
                     if (not medBBPGT200) | np.isnan(medBBPGT200):
-                         print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars) no BBP data below 200 dbars) : QC=" + str(QC_all[1]))
-                         QC = QC_all[1]
+                        if VERBOSE:
+                            print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars) no BBP data below 200 dbars) : QC=" + str(QC_all[1]))
+                        QC = QC_all[1]
 
                     elif medBBPGT200<E_DEEP_BBP700_THRESH:    
                     # set ISBAD so that the test does not fail when it's a shallow profile without high-deep values
-                        print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars)) : QC=" + str(QC_all[0]))
+                        if VERBOSE:
+                            print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars)) : QC=" + str(QC_all[0]))
                         ISBAD = 0
                         QC = QC_all[0]
 
                     elif medBBPGT200>=E_DEEP_BBP700_THRESH:
-                        print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars) with high deep values (medBBPGT200=" + str(medBBPGT200) + "): QC=" + str(QC_all[1]))
+                        if VERBOSE:
+                            print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars) with high deep values (medBBPGT200=" + str(medBBPGT200) + "): QC=" + str(QC_all[1]))
                         QC = QC_all[1]
                     
 
@@ -629,7 +636,7 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test, fn, VERBOSE=F
             QC_1st_failed_test[iQChigher] = QC_TEST_CODE
 
             if PLOT:
-                plot_failed_QC_test(BBP, bin_counts, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, FORCE_PLOTi, SAVEPLOT)
+                plot_failed_QC_test(BBP, bin_counts, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, FORCE_PLOT, SAVEPLOT)
 
 
     return QC_Flags, QC_1st_failed_test
@@ -638,7 +645,8 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test, fn, VERBOSE=F
 ##################################################################
 ##################################################################
 # function to plot results of applying test to dataset
-def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE=False, FORCE_PLOT=False, SAVEPLOT=False):
+def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, 
+                        VERBOSE=False, FORCE_PLOT=False, SAVEPLOT=False):
     # BBP: nparray with all BBP data
     # BBPmf1: median-filtered BBP data
     # ISBAD: index marking the data that failed the QC test
@@ -720,19 +728,21 @@ def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, 
     ax1.set_title('QC='+QC_TEST_CODE+" "+fn.split('/')[-1], fontsize=20, color='r', fontweight='bold')
 
     if SAVEPLOT:
+        if VERBOSE:
+            print("saving plot...")
         fname = DIR_PLOTS + "/" + fn.split('/')[-3] + "/" + fn.split('/')[-4] + "_" + fn.split('/')[-1] + "_" + QC_TEST_CODE+ ".png"
         fig.savefig(fname, dpi = 75) 
 
-        # minimise memory leaks
-        plt.close(fig)
-        gc.collect()
+    # minimise memory leaks
+    plt.close(fig)
+    gc.collect()
     
     return
 
 
 
 # function to extract basic data from Argo NetCDF meta file
-def rd_WMOmeta(iwmo):
+def rd_WMOmeta(iwmo, VERBOSE):
     # read meta file to extract info on PARKING DEPTH
     fn = glob.glob(MAIN_DIR + 'dac/' + iwmo + '/*meta.nc')[0]
     ds_config = xr.open_dataset(fn)
@@ -740,7 +750,8 @@ def rd_WMOmeta(iwmo):
 
     ## extract info on SENSOR
     if not np.all(ds_config.SENSOR.astype('str').str.contains('BACKSCATTERINGMETER_BBP700')):
-        print("----this float does not have SENSOR metadata")
+        if VERBOSE:
+            print("----this float does not have SENSOR metadata")
         SENSOR_MODEL = 'no metadata'
         SENSOR_MAKER = 'no metadata'
         SENSOR_SERIAL_NO = 'no metadata'
@@ -753,8 +764,9 @@ def rd_WMOmeta(iwmo):
     if ds_config.PLATFORM_TYPE.values:
         PLATFORM_TYPE = str(ds_config.PLATFORM_TYPE.values.astype(str))
     else:
-        PLATFORM_TYPE = 'no metadata'    
-    print("PLATFORM_TYPE=" + PLATFORM_TYPE)
+        PLATFORM_TYPE = 'no metadata'
+        if VERBOSE:
+            print("PLATFORM_TYPE=" + PLATFORM_TYPE)
     
     # extract CONFIG_MISSION_NUMBER from meta file
     miss_no_float = ds_config.CONFIG_MISSION_NUMBER.values
@@ -764,7 +776,7 @@ def rd_WMOmeta(iwmo):
 
 
 # read BBP and PRES
-def rd_BBP(fn_p, miss_no_float, ds_config):
+def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
     ds = xr.open_dataset(fn_p)
 
     # check if BBP700 is present
@@ -773,7 +785,10 @@ def rd_BBP(fn_p, miss_no_float, ds_config):
         if VERBOSE:
             print('no BBP700 for this cycle')
         ds.close()
-        return 
+        # set returned values to flag
+        PRES = BBP700 = PRES = BBP700 = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
+        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan
+        
 
 
     # find N_PROF where the BBP700 data are stored     
@@ -784,7 +799,9 @@ def rd_BBP(fn_p, miss_no_float, ds_config):
     else:
         if VERBOSE:
             print("this profile has less than 5 data points: skipping ")
-        return
+        # set returned values to flag
+        PRES = BBP700 = PRES = BBP700 = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
+        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan
 
 
     BBP700 = ds.BBP700[N_PROF].values
@@ -814,7 +831,8 @@ def rd_BBP(fn_p, miss_no_float, ds_config):
 
     # find index of mission number in META file corresponding to profile
     if len(np.where(miss_no_float==miss_no_prof)[0])==0:
-        print('the CONFIG_MISSION_NUMBER of the profile does not have a corresponding value in the META file')
+        if VERBOSE:
+            print('the CONFIG_MISSION_NUMBER of the profile does not have a corresponding value in the META file')
         i_miss_no = 0            
     else:
         i_miss_no = np.where(miss_no_float==miss_no_prof)[0][0]
@@ -832,6 +850,7 @@ def rd_BBP(fn_p, miss_no_float, ds_config):
     # close dataset
     ds.close()
 
+
     return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan
 
 
@@ -848,13 +867,15 @@ def QC_wmo(iwmo, VERBOSE=True, SAVEPKL=False, SAVEPLOT=False):
         return
 
     # read meta file
-    [ds_config, SENSOR_MODEL, SENSOR_MAKER, SENSOR_SERIAL_NO, PLATFORM_TYPE, miss_no_float] = rd_WMOmeta(iwmo) 
+    [ds_config, SENSOR_MODEL, SENSOR_MAKER, SENSOR_SERIAL_NO, PLATFORM_TYPE, miss_no_float] = rd_WMOmeta(iwmo, VERBOSE)
     
     # list single profiles
     fn2glob = MAIN_DIR + "dac/" + iwmo + "/profiles/" + "B*" + iwmo.split("/")[-1] + "*_[0-9][0-9][0-9].nc"
     fn_single_profiles = np.sort(glob.glob(fn2glob))
 
     if SAVEPLOT:
+        if VERBOSE:
+            print("Chekcing that dir is there, if not create it...")
         # create dir for output plots
         dout = DIR_PLOTS + "/" + fn_single_profiles[0].split('/')[-3]
         if not os.path.isdir(dout):
@@ -863,28 +884,26 @@ def QC_wmo(iwmo, VERBOSE=True, SAVEPKL=False, SAVEPLOT=False):
                 print("created " + dout)
         else: # remove old plots + pkl file from this dir
             if VERBOSE:
-                print("removing old plots in " + dout + "...")     
+                print("removing old plots in " + dout + "...")
+                print(DIR_PLOTS + iwmo.split("/")[-1] + "/*.png")
             oldfn = glob.glob(DIR_PLOTS + iwmo.split("/")[-1] + "/*.png")
-            print(DIR_PLOTS + iwmo.split("/")[-1] + "/*.png")
+
+
             [os.remove(i) for i in oldfn]   
             if VERBOSE:
                 print("...done")
 
-    if SAVEPKL: # remove old plots + pkl file from this dir
+    if SAVEPKL: # remove existing pkl file from this dir
         if VERBOSE:
-            print("removing old pickled files in " + dout + "...")     
-        oldfn = glob.glob(DIR_PLOTS + iwmo.split("/")[-1] + "/*.pikl")
-        print(DIR_PLOTS + iwmo.split("/")[-1] + "/*.pkl")
+            print("removing old pickled files in " + dout + "...")
+            print(DIR_PLOTS + iwmo.split("/")[-1] + "/*.pkl")
+        oldfn = glob.glob(DIR_PLOTS + iwmo.split("/")[-1] + "/*.pkl")
+
         [os.remove(i) for i in oldfn]   
         if VERBOSE:
             print("...done")
 
 
-
-
-
-
-        
     # initialise variables that will store all data from this float
     all_PRES = []
     all_BBP700 = []
@@ -901,14 +920,16 @@ def QC_wmo(iwmo, VERBOSE=True, SAVEPKL=False, SAVEPLOT=False):
             print(fn_p)
 
         # read BBP and PRES + other data from profile file
-        [ PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan] = rd_BBP(fn_p, miss_no_float, ds_config)
+        [ PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan] = rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE)
+        if np.any(PRES==-12345678):
+            continue
 
         # initialise arrays with QC flags[0,:] = 1 (good data)
         BBP700_QC_flags = np.zeros(BBP700.shape)+1
         BBP700_QC_1st_failed_test = np.full(shape=BBP700.shape, fill_value='0')
         
         # Plot original profile even if no QC flag is raisef
-        plot_failed_QC_test(BBP700, BBP700mf1, PRES, BBP700*np.nan, BBP700_QC_flags, BBP700_QC_1st_failed_test, '0', fn_p, SAVEPLOT)
+        plot_failed_QC_test(BBP700, BBP700mf1, PRES, BBP700*np.nan, BBP700_QC_flags, BBP700_QC_1st_failed_test, '0', fn_p, SAVEPLOT, VERBOSE)
         
         # GLOBAL-RANGE TEST for BBP700
         BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Global_range_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT, SAVEPLOT)
@@ -920,7 +941,7 @@ def QC_wmo(iwmo, VERBOSE=True, SAVEPKL=False, SAVEPLOT=False):
         BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Parking_hook_test(BBP700, BBP700mf1, PRES, maxPRES, PARK_PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT, SAVEPLOT)
 
         # BBP_NOISY_PROFILE TEST
-        BBP700_QC_flag, BBP700_QC_1st_failed_test, rel_res = BBP_Noisy_Profile_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT, SAVEPLOT)
+        BBP700_QC_flag, BBP700_QC_1st_failed_test, rel_res = BBP_Noisy_profile_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT, SAVEPLOT)
 
         # HIGH_DEEP_VALUES TEST
         BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_High_Deep_Values_test(BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT, SAVEPLOT)
@@ -982,7 +1003,7 @@ def QC_wmo(iwmo, VERBOSE=True, SAVEPKL=False, SAVEPLOT=False):
     
     if SAVEPKL:
         # save results in pickled file (https://www.datacamp.com/community/tutorials/pickle-python-tutorial)
-        fname = DIR_OUT + fn_p.split('/')[-3] + "/" + fn_p.split('/')[-4] + "_" + fn_p.split('/')[-1].split('.')[0].split('_')[0] +  ".pkl"
+        fname = DIR_PLOTS + fn_p.split('/')[-3] + "/" + fn_p.split('/')[-4] + "_" + fn_p.split('/')[-1].split('.')[0].split('_')[0] +  ".pkl"
         fnout = open(fname,'wb')
         pickle.dump(all_PROFS, fnout)
         fnout.close()
