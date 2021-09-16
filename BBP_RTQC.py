@@ -661,7 +661,6 @@ def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, 
     # QC_TEST_CODE: code of the failed test
     #FORCE_PLOT: flag to plot the test plot even if the test has not failed
     
-    DIR_OUT = './plots/'
 
 #     %matplotlib inline   
 #     plt.ioff() # this is needed to avoid showing the plot (i.e. only saving it)
@@ -735,7 +734,7 @@ def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, 
     ax1.set_title('QC='+QC_TEST_CODE+" "+fn.split('/')[-1], fontsize=20, color='r', fontweight='bold')
 
     if SAVEPLOT:
-        fname = DIR_OUT + "/" + fn.split('/')[-3] + "/" + fn.split('/')[-4] + "_" + fn.split('/')[-1] + "_" + QC_TEST_CODE+ ".png"
+        fname = DIR_PLOTS + "/" + fn.split('/')[-3] + "/" + fn.split('/')[-4] + "_" + fn.split('/')[-1] + "_" + QC_TEST_CODE+ ".png"
         fig.savefig(fname, dpi = 75) 
 
     # minimise memory leaks
@@ -853,7 +852,7 @@ def rd_BBP(fn_p, miss_no_float, ds_config):
 
 
 # function to apply tests and plot results (needed in function form for parallel processing)
-def QC_wmo(iwmo, VERBOSE=True, SAVEPKL=False):
+def QC_wmo(iwmo, VERBOSE=True, SAVEPKL=False, SAVEPLOT=False):
  
     PLOT = True
 
@@ -869,20 +868,36 @@ def QC_wmo(iwmo, VERBOSE=True, SAVEPKL=False):
     fn2glob = MAIN_DIR + "dac/" + iwmo + "/profiles/" + "B*" + iwmo.split("/")[-1] + "*_[0-9][0-9][0-9].nc"
     fn_single_profiles = np.sort(glob.glob(fn2glob))
 
-    # create dir for output plots
-    dout = DIR_PLOTS + "/" + fn_single_profiles[0].split('/')[-3]
-    if not os.path.isdir(dout):
-        os.mkdir(dout)
+    if SAVEPLOT:
+        # create dir for output plots
+        dout = DIR_PLOTS + "/" + fn_single_profiles[0].split('/')[-3]
+        if not os.path.isdir(dout):
+            os.mkdir(dout)
+            if VERBOSE:
+                print("created " + dout)
+        else: # remove old plots + pkl file from this dir
+            if VERBOSE:
+                print("removing old plots in " + dout + "...")     
+            oldfn = glob.glob(DIR_PLOTS + iwmo.split("/")[-1] + "/*.png")
+            print(DIR_PLOTS + iwmo.split("/")[-1] + "/*.png")
+            [os.remove(i) for i in oldfn]   
+            if VERBOSE:
+                print("...done")
+
+    if SAVEPKL: # remove old plots + pkl file from this dir
         if VERBOSE:
-            print("created " + dout)
-    else: # remove old plots + pkl file from this dir
-        if VERBOSE:
-            print("removing old plots in " + dout + "...")     
-        oldfn = glob.glob(DIR_PLOTS + iwmo.split("/")[-1] + "/*.p*")
-        print(DIR_PLOTS + iwmo.split("/")[-1] + "/*.p*")
+            print("removing old pickled files in " + dout + "...")     
+        oldfn = glob.glob(DIR_PLOTS + iwmo.split("/")[-1] + "/*.pikl")
+        print(DIR_PLOTS + iwmo.split("/")[-1] + "/*.pkl")
         [os.remove(i) for i in oldfn]   
         if VERBOSE:
             print("...done")
+
+
+
+
+
+
         
     # initialise variables that will store all data from this float
     all_PRES = []
@@ -907,10 +922,10 @@ def QC_wmo(iwmo, VERBOSE=True, SAVEPKL=False):
         BBP700_QC_1st_failed_test = np.full(shape=BBP700.shape, fill_value='0')
         
         # Plot original profile even if no QC flag is raisef
-        plot_failed_QC_test(BBP700, BBP700mf1, PRES, BBP700*np.nan, BBP700_QC_flags, BBP700_QC_1st_failed_test, '0', fn_p)
+        plot_failed_QC_test(BBP700, BBP700mf1, PRES, BBP700*np.nan, BBP700_QC_flags, BBP700_QC_1st_failed_test, '0', fn_p, SAVEPLOT=False)
         
         # GLOBAL-RANGE TEST for BBP700
-        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Global_range_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT)
+        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Global_range_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT, SAVEPLOT)
 
         # SURFACE-HOOK TEST for BBP700
         BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Surface_hook_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT)
