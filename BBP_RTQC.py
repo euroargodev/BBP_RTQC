@@ -411,13 +411,16 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, 
     res = np.empty(BBP.shape)
     res[:] = np.nan
     
-
-
     innan = np.where(~np.isnan(BBP))[0]
     
     if len(innan)>10: # if we have at least 10 points in the profile
+
+        #new constrain: noise should be below 100 dbars
+        iPRES = np.where(PRES[innan]>B_PRES_THRESH)[0]
+
+
         res[innan] = np.abs(BBP[innan]-BBPmf1[innan])
-        ioutliers = np.where(abs(res)>B_RES_THRESHOLD)[0] # index of where the rel res are greater than the threshold
+        ioutliers = np.where(abs(res[innan][iPRES])>B_RES_THRESHOLD)[0] # index of where the rel res are greater than the threshold
 
         if len(ioutliers)/len(innan)>=B_FRACTION_OF_PROFILE_THAT_IS_OUTLIER: # this is the actual test: are there more than a certain fraction of points that are noisy?
             ISBAD = ioutliers
@@ -734,8 +737,8 @@ def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, 
         fig.savefig(fname, dpi = 75) 
 
     # minimise memory leaks
-    plt.close(fig)
-    gc.collect()
+        plt.close(fig)
+        gc.collect()
     
     return
 
