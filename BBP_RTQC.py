@@ -120,9 +120,6 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, V
     #
 
 
-
-    FORCE_PLOT = False # this is to plot even if the test does not fails
-
     QC = 3
     QC_TEST_CODE = 'A' # or 'A2' if negative medfilt1 value is found   
 
@@ -148,7 +145,7 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, V
             print('applying QC=' + str(QC) + '...')
             
         if PLOT:
-            plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, FORCE_PLOT, SAVEPLOT)
+            plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, PLOT, SAVEPLOT)
         
     return QC_Flags, QC_1st_failed_test
 
@@ -188,8 +185,6 @@ def BBP_Surface_hook_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, V
     # __________________________________________________________________________________________
     #
 
-    FORCE_PLOT = False # this is to plot even if the test does not fails
-    
     QC = 3
     QC_TEST_CODE = 'D'    
     ISBAD = np.zeros(len(BBPmf1), dtype=bool) # initialise flag
@@ -208,7 +203,7 @@ def BBP_Surface_hook_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, V
             print('applying QC=' + str(QC) + '...')
             
         if PLOT:
-            plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, FORCE_PLOT, SAVEPLOT)
+            plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, PLOT, SAVEPLOT)
         
     return QC_Flags, QC_1st_failed_test
 
@@ -249,8 +244,6 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
     # __________________________________________________________________________________________
     #
 
-    FORCE_PLOT = False # this is to plot even if the test does not fails
-    
     QC = 4
     QC_TEST_CODE = 'G'    
     ISBAD = np.zeros(len(BBP), dtype=bool) # initialise flag
@@ -299,7 +292,7 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
             print('applying QC=' + str(QC) + '...')
             
         if PLOT:
-            plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, FORCE_PLOT, SAVEPLOT)
+            plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, PLOT, SAVEPLOT)
         
     return QC_Flags, QC_1st_failed_test
 
@@ -342,8 +335,6 @@ def BBP_Negative_nonsurface_test(BBP, PRES, QC_Flags, QC_1st_failed_test, fn, VE
     # __________________________________________________________________________________________
     #
 
-    FORCE_PLOT = False # this is to plot even if the test does not fails
-
     QC = 3
     QC_TEST_CODE = 'F'    
     ISBAD = np.zeros(len(BBP), dtype=bool) # initialise flag
@@ -364,8 +355,8 @@ def BBP_Negative_nonsurface_test(BBP, PRES, QC_Flags, QC_1st_failed_test, fn, VE
             QC_Flags[iQChigher] = QC
             QC_1st_failed_test[iQChigher] = QC_TEST_CODE
             
-        if ((np.any(ISBAD)) & (PLOT==True)) | (FORCE_PLOT==True):
-            plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, FORCE_PLOT, SAVEPLOT)
+        if ((np.any(ISBAD)) & (PLOT==True)) | (PLOT==True):
+            plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, PLOT, SAVEPLOT)
         
     return QC_Flags, QC_1st_failed_test
 
@@ -403,8 +394,6 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, 
     QC_TEST_CODE = 'B'
     ISBAD = np.array([]) # flag for noisy profile
     
-    FORCE_PLOT = False # plot even if the test does not fail (used when developing the test)
-
 #     rel_res = np.empty(BBP.shape)
 #     rel_res[:] = np.nan
     
@@ -436,8 +425,8 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, 
             QC_Flags[iQChigher] = QC
             QC_1st_failed_test[iQChigher] = QC_TEST_CODE
 
-    if ((len(ISBAD)>0) & (PLOT==True)) | (FORCE_PLOT==True):
-        plot_failed_QC_test(res, res*0., PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, FORCE_PLOT, SAVEPLOT)
+    if ((len(ISBAD)>0) & (PLOT==True)) | (PLOT==True):
+        plot_failed_QC_test(res, res*0., PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, PLOT, SAVEPLOT)
 
     
     return QC_Flags, QC_1st_failed_test, res
@@ -471,8 +460,6 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, VE
     # EXAMPLE: coriolis_BR6902827_363.nc
     # __________________________________________________________________________________________
 
-    FORCE_PLOT = False # this is to plot even if the test does not fails
-        
     QC = 3; # flag to apply if the result of the test is true
     QC_TEST_CODE = 'C'
     ISBAD = np.zeros(len(BBPmf1), dtype=bool) # flag for noisy profile
@@ -494,7 +481,7 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, VE
             QC_1st_failed_test[iQChigher] = QC_TEST_CODE
 
             if PLOT:
-                plot_failed_QC_test(BBPmf1, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, FORCE_PLOT, SAVEPLOT)
+                plot_failed_QC_test(BBPmf1, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, PLOT, SAVEPLOT)
 
 
  
@@ -537,8 +524,6 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test, fn, VERBOSE=F
     # EXAMPLE (data in only one bin, QC=4): coriolis_BD7900591_077.nc<br>
     # __________________________________________________________________________________________
 
-    FORCE_PLOT = False # this is to plot even if the test does not fails
-        
     QC_all = [np.nan, np.nan, np.nan, np.nan]    
     QC_all[0] = 2 # flag to apply if shallow profile 
     QC_all[1] = 3 # flag to apply if the result of the test is true
@@ -639,7 +624,7 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test, fn, VERBOSE=F
             QC_1st_failed_test[iQChigher] = QC_TEST_CODE
 
             if PLOT:
-                plot_failed_QC_test(BBP, bin_counts, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, FORCE_PLOT, SAVEPLOT)
+                plot_failed_QC_test(BBP, bin_counts, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, PLOT, SAVEPLOT)
 
 
     return QC_Flags, QC_1st_failed_test
@@ -649,14 +634,14 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test, fn, VERBOSE=F
 ##################################################################
 # function to plot results of applying test to dataset
 def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, 
-                        VERBOSE=False, FORCE_PLOT=False, SAVEPLOT=False):
+                        VERBOSE=False, PLOT=False, SAVEPLOT=False):
     # BBP: nparray with all BBP data
     # BBPmf1: median-filtered BBP data
     # ISBAD: index marking the data that failed the QC test
     # QC_Flags: array with QC flags
     # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
     # QC_TEST_CODE: code of the failed test
-    #FORCE_PLOT: flag to plot the test plot even if the test has not failed
+    # PLOT: flag to plot the test plot even if the test has not failed
     
 
 #     %matplotlib inline   
@@ -676,7 +661,7 @@ def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, 
         return
     
 
-    if (not (QC_TEST_CODE == "0")) & (FORCE_PLOT == False): # this is to plot the original profile 
+    if (not (QC_TEST_CODE == "0")) & (PLOT == False): # this is to plot the original profile 
         ax1.plot(BBPmf1[ISBAD], PRES[ISBAD], 'o', ms=10, color='r', mfc='r', alpha=0.7)
         ax1.plot(BBP[innan], PRES[innan], 'o-', ms=3, color='k', mfc='none', alpha=0.7) # <<<<<<<<<<<<<<<<<<
 
@@ -932,7 +917,7 @@ def QC_wmo(iwmo, VERBOSE=True, SAVEPKL=False, SAVEPLOT=False):
         BBP700_QC_1st_failed_test = np.full(shape=BBP700.shape, fill_value='0')
         
         # Plot original profile even if no QC flag is raisef
-        plot_failed_QC_test(BBP700, BBP700mf1, PRES, BBP700*np.nan, BBP700_QC_flags, BBP700_QC_1st_failed_test, '0', fn_p, SAVEPLOT, VERBOSE)
+        plot_failed_QC_test(BBP700, BBP700mf1, PRES, BBP700*np.nan, BBP700_QC_flags, BBP700_QC_1st_failed_test, '0', fn_p, SAVEPLOT, VERBOSE, PLOT)
         
         # GLOBAL-RANGE TEST for BBP700
         BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Global_range_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT, SAVEPLOT)
