@@ -84,9 +84,7 @@ def adaptive_medfilt1(x, y, PLOT=False):
 ##################################################################
 ##################################################################
 # test parameters defined outside function to make them global variables
-A_MIN_BP700 = 0 # [1/m]
-A_MAX_BBBP700 = 0.01 # [1/m] REVISED VALUE (very conservative estimate based on histograms in fig 2 of Bisson et al., 2019, 10.1364/OE.27.030191)
-def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, VERBOSE=False, PLOT=False):
+def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, VERBOSE=False, PLOT=False, SAVEPLOT=False):
     # BBP: nparray with all BBP data
     # BBPmf1: median-filtered BBP data
     # QC_Flags: array with QC flags
@@ -128,7 +126,7 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, V
     QC = 3
     QC_TEST_CODE = 'A' # or 'A2' if negative medfilt1 value is found   
 
-    ISBAD = np.zeros(len(BBPmf1), dtype=bool) # flag for noisy profile
+    ISBAD = np.zeros(len(BBPmf1), dtype=bool) # initialise array with indices of where test failed  
 
     # this is the test 
     ibad = np.where( (BBPmf1 > A_MAX_BBP700) | (BBPmf1 < A_MIN_BBP700) )[0]
@@ -143,13 +141,14 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test, fn, V
         # apply flag
         QC_Flags[ISBAD] = QC
         QC_1st_failed_test[ISBAD] = QC_TEST_CODE
-        
+
+
         if VERBOSE:
             print('Failed Global_Range_test')
             print('applying QC=' + str(QC) + '...')
             
         if PLOT:
-            plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, FORCE_PLOT)
+            plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE, FORCE_PLOT, SAVEPLOT)
         
     return QC_Flags, QC_1st_failed_test
 
@@ -653,7 +652,7 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test, fn, VERBOSE=F
 ##################################################################
 ##################################################################
 # function to plot results of applying test to dataset
-def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE=False, FORCE_PLOT=False):
+def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE, fn, VERBOSE=False, FORCE_PLOT=False, SAVEPLOT=False):
     # BBP: nparray with all BBP data
     # BBPmf1: median-filtered BBP data
     # ISBAD: index marking the data that failed the QC test
@@ -735,8 +734,9 @@ def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, 
     ax1.set_ylabel('PRES [dbars]', fontsize=20)
     ax1.set_title('QC='+QC_TEST_CODE+" "+fn.split('/')[-1], fontsize=20, color='r', fontweight='bold')
 
-    fname = DIR_OUT + "/" + fn.split('/')[-3] + "/" + fn.split('/')[-4] + "_" + fn.split('/')[-1] + "_" + QC_TEST_CODE+ ".png"
-    fig.savefig(fname, dpi = 75) 
+    if SAVEPLOT:
+        fname = DIR_OUT + "/" + fn.split('/')[-3] + "/" + fn.split('/')[-4] + "_" + fn.split('/')[-1] + "_" + QC_TEST_CODE+ ".png"
+        fig.savefig(fname, dpi = 75) 
 
     # minimise memory leaks
     plt.close(fig)
