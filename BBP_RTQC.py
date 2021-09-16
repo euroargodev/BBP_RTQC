@@ -845,7 +845,7 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
 
 
 # function to apply tests and plot results (needed in function form for parallel processing)
-def QC_wmo(iwmo, VERBOSE=True, SAVEPKL=False, SAVEPLOT=False):
+def QC_wmo(iwmo, VERBOSE=True, SAVEPKL=False, SAVEPLOT=False, PLOT=True):
  
     PLOT = True
 
