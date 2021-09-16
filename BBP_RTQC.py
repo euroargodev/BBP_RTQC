@@ -737,9 +737,9 @@ def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, 
         fname = DIR_PLOTS + "/" + fn.split('/')[-3] + "/" + fn.split('/')[-4] + "_" + fn.split('/')[-1] + "_" + QC_TEST_CODE+ ".png"
         fig.savefig(fname, dpi = 75) 
 
-    # minimise memory leaks
-    plt.close(fig)
-    gc.collect()
+        # minimise memory leaks
+        plt.close(fig)
+        gc.collect()
     
     return
 
