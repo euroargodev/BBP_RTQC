@@ -85,7 +85,7 @@ def adaptive_medfilt1(x, y, PLOT=False):
 ##################################################################
 # test parameters defined outside function to make them global variables
 def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
-                          fn, VERBOSE=False, PLOT=False, SAVEPLOT=False):
+                          fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
     # BBPmf1: median-filtered BBP data
     # QC_Flags: array with QC flags
@@ -157,7 +157,7 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 ##################################################################
 # test parameters defined outside function to make them global variables
 def BBP_Surface_hook_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
-                          fn, VERBOSE=False, PLOT=False, SAVEPLOT=False):
+                          fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
     # BBPmf1: median-filtered BBP data
     # QC_Flags: array with QC flags
@@ -220,7 +220,7 @@ def BBP_Surface_hook_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 ##################################################################
 # test parameters defined outside function to make them global variables
 def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1st_failed_test, 
-                          fn, VERBOSE=False, PLOT=False, SAVEPLOT=False):
+                          fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
     # BBPmf1: nparray with medfilt BBP data
     # maxPRES: maximum pressure recorded in this profile
@@ -317,7 +317,7 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
 # test parameters defined outside function to make them global variables
 ## example csiro/5905022/profiles/BD5905022_053.nc
 def BBP_Negative_nonsurface_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
-                                 fn, VERBOSE=False, PLOT=False, SAVEPLOT=False):
+                                 fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
     # BBPmf1: median-filtered BBP data
     # QC_Flags: array with QC flags
@@ -381,7 +381,7 @@ def BBP_Negative_nonsurface_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 ##################################################################
 ##################################################################
 def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
-                           fn, VERBOSE=False, PLOT=False, SAVEPLOT=False):
+                           fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
     # BBPmf1: smooth BBP array (medfilt1(BBP700, 31)
     # QC_Flags: array with QC flags
@@ -454,7 +454,7 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 ##################################################################
 ##################################################################
 def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
-                              fn, VERBOSE=False, PLOT=False, SAVEPLOT=False):
+                              fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
     # BBPmf1: smooth BBP array (medfilt1(BBP700, 31)
     # QC_Flags: array with QC flags
@@ -515,7 +515,7 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 ##################################################################
 ##################################################################
 def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
-                          fn, VERBOSE=False, PLOT=False, SAVEPLOT=False):
+                          fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
     # QC_Flags: array with QC flags
     # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
@@ -658,14 +658,13 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 ##################################################################
 # function to plot results of applying test to dataset
 def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
-                        fn, VERBOSE=False, SAVEPLOT=False):
+                        fn, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
     # BBPmf1: median-filtered BBP data
     # ISBAD: index marking the data that failed the QC test
     # QC_Flags: array with QC flags
     # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
     # QC_TEST_CODE: code of the failed test
-    
     fig = plt.figure(figsize=(10, 10))
     ax1 = fig.add_subplot(1,1,1)
 
@@ -732,11 +731,10 @@ def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, 
         fig.savefig(fname, dpi = 75) 
 
     # minimise memory leaks
-        plt.close(fig)
-        gc.collect()
+    plt.close(fig)
+    gc.collect()
     
     return
-
 
 
 # function to extract basic data from Argo NetCDF meta file
@@ -770,7 +768,6 @@ def rd_WMOmeta(iwmo, VERBOSE):
     miss_no_float = ds_config.CONFIG_MISSION_NUMBER.values
     
     return ds_config, SENSOR_MODEL, SENSOR_MAKER, SENSOR_SERIAL_NO, PLATFORM_TYPE, miss_no_float
-
 
 
 # read BBP and PRES
@@ -852,10 +849,8 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
     return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan
 
 
-
-
 # function to apply tests and plot results (needed in function form for parallel processing)
-def QC_wmo(iwmo, VERBOSE=True, SAVEPKL=False, SAVEPLOT=False, PLOT=False):
+def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=True):
 
     print(iwmo)
 
@@ -923,30 +918,33 @@ def QC_wmo(iwmo, VERBOSE=True, SAVEPKL=False, SAVEPLOT=False, PLOT=False):
         # initialise arrays with QC flags[0,:] = 1 (good data)
         BBP700_QC_flags = np.zeros(BBP700.shape)+1
         BBP700_QC_1st_failed_test = np.full(shape=BBP700.shape, fill_value='0')
-        
-        # Plot original profile even if no QC flag is raisef
-        plot_failed_QC_test(BBP700, BBP700mf1, PRES, BBP700*np.nan, BBP700_QC_flags, BBP700_QC_1st_failed_test, '0', fn_p, SAVEPLOT, VERBOSE)
+
+        # # Plot original profile even if no QC flag is raisef
+        # plot_failed_QC_test(BBP700, BBP700mf1, PRES, BBP700*np.nan, BBP700_QC_flags, BBP700_QC_1st_failed_test, '0', fn_p, SAVEPLOT, VERBOSE)
         
         # GLOBAL-RANGE TEST for BBP700
-        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Global_range_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT, SAVEPLOT)
+        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Global_range_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
 
         # SURFACE-HOOK TEST for BBP700
-        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Surface_hook_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT, SAVEPLOT)
+        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Surface_hook_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
 
         # PARKING-HOOK TEST for BBP700
-        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Parking_hook_test(BBP700, BBP700mf1, PRES, maxPRES, PARK_PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT, SAVEPLOT)
+        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Parking_hook_test(BBP700, BBP700mf1, PRES, maxPRES, PARK_PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
 
         # BBP_NOISY_PROFILE TEST
-        BBP700_QC_flag, BBP700_QC_1st_failed_test, rel_res = BBP_Noisy_profile_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT, SAVEPLOT)
+        BBP700_QC_flag, BBP700_QC_1st_failed_test, rel_res = BBP_Noisy_profile_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
+        if np.any(BBP700_QC_1st_failed_test=="B"):
+            plot_failed_QC_test(BBP700, BBP700mf1, PRES, BBP700 * np.nan, BBP700_QC_flags, BBP700_QC_1st_failed_test,
+                                '0', fn_p, SAVEPLOT, VERBOSE)
 
         # HIGH_DEEP_VALUES TEST
-        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_High_Deep_Values_test(BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT, SAVEPLOT)
+        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_High_Deep_Values_test(BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
         
         # MISSING_DATA TEST
-        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Missing_Data_test(BBP700, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT, SAVEPLOT)
+        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Missing_Data_test(BBP700, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
         
         # NEGATIVE NON-SURFACE TEST
-        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Negative_nonsurface_test(BBP700, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, VERBOSE, PLOT, SAVEPLOT)
+        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Negative_nonsurface_test(BBP700, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
 
         # ANIMAL SPIKES
 
