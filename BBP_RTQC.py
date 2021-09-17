@@ -146,9 +146,9 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
             print('Failed Global_Range_test')
             print('applying QC=' + str(QC) + '...')
             
-        if (PLOT) & (FAILED):
-            plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
-                                fn, VERBOSE, SAVEPLOT)
+    if (PLOT) & (FAILED):
+        plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
+                            fn, VERBOSE, SAVEPLOT)
         
     return QC_Flags, QC_1st_failed_test
 
@@ -209,9 +209,9 @@ def BBP_Surface_hook_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
             print('Failed Surface_hook_test')
             print('applying QC=' + str(QC) + '...')
             
-        if (PLOT) & (FAILED):
-            plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
-                                fn, VERBOSE, SAVEPLOT)
+    if (PLOT) & (FAILED):
+        plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
+                            fn, VERBOSE, SAVEPLOT)
         
     return QC_Flags, QC_1st_failed_test
 
@@ -302,9 +302,9 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
             print('Failed Parking_hook_test')
             print('applying QC=' + str(QC) + '...')
             
-        if (PLOT) & (FAILED):
-            plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
-                                fn, VERBOSE, SAVEPLOT)
+    if (PLOT) & (FAILED):
+        plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
+                            fn, VERBOSE, SAVEPLOT)
         
     return QC_Flags, QC_1st_failed_test
 
@@ -371,10 +371,10 @@ def BBP_Negative_nonsurface_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
             QC_Flags[iQChigher] = QC
             QC_1st_failed_test[iQChigher] = QC_TEST_CODE
             
-        if (PLOT) & (FAILED):
-            plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
-                                fn, VERBOSE, SAVEPLOT)
-        
+    if (PLOT) & (FAILED):
+        plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
+                            fn, VERBOSE, SAVEPLOT)
+
     return QC_Flags, QC_1st_failed_test
 
 
