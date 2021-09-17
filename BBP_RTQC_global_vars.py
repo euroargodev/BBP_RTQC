@@ -16,6 +16,8 @@ G_STDFACTOR = 3 # factor that multiplies the standard deviation to set the basel
 # B_FRACTION_OF_PROFILE_THAT_IS_OUTLIER = 0.15 # fraction of profile with relative residuals above REL_RES_THRESHOLD
 B_RES_THRESHOLD = 0.0005 # [1/m] threshold for relative residuals
 B_FRACTION_OF_PROFILE_THAT_IS_OUTLIER = 0.1 # fraction of profile with relative residuals above REL_RES_THRESHOLD
+B_PRES_THRESH = 100 # [dbars] # this is to avoid flagging profiles with spikes in surface data (likely good data)
+
 
 C_DEPTH_THRESH = 800 #[dbars] below this threshold we consider it "deep"
 C_DEEP_BBP700_THRESH = 0.0005 # [1/m] threshold for bbp at depth
