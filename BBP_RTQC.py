@@ -148,7 +148,7 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
             
     if (PLOT) & (FAILED):
         plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
-                            fn, VERBOSE, SAVEPLOT)
+                            fn, SAVEPLOT, VERBOSE)
         
     return QC_Flags, QC_1st_failed_test
 
@@ -211,7 +211,7 @@ def BBP_Surface_hook_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
             
     if (PLOT) & (FAILED):
         plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
-                            fn, VERBOSE, SAVEPLOT)
+                            fn, SAVEPLOT, VERBOSE)
         
     return QC_Flags, QC_1st_failed_test
 
@@ -304,7 +304,7 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
             
     if (PLOT) & (FAILED):
         plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
-                            fn, VERBOSE, SAVEPLOT)
+                            fn, SAVEPLOT, VERBOSE)
         
     return QC_Flags, QC_1st_failed_test
 
@@ -373,7 +373,7 @@ def BBP_Negative_nonsurface_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
             
     if (PLOT) & (FAILED):
         plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
-                            fn, VERBOSE, SAVEPLOT)
+                            fn, SAVEPLOT, VERBOSE)
 
     return QC_Flags, QC_1st_failed_test
 
@@ -445,7 +445,7 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
     if (PLOT) & (FAILED):
         plot_failed_QC_test(res, res*0., PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
-                            fn, VERBOSE, SAVEPLOT)
+                            fn, SAVEPLOT, VERBOSE)
 
     
     return QC_Flags, QC_1st_failed_test, res
@@ -505,7 +505,7 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
     if (PLOT) & (FAILED):
                 plot_failed_QC_test(BBPmf1, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test,
-                                    QC_TEST_CODE, fn, VERBOSE, SAVEPLOT)
+                                    QC_TEST_CODE, fn, SAVEPLOT, VERBOSE)
 
 
  
@@ -649,7 +649,7 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     if (PLOT) & (FAILED):
                 plot_failed_QC_test(BBP, bin_counts, PRES, ISBAD, QC_Flags, QC_1st_failed_test,
-                                    QC_TEST_CODE, fn, VERBOSE, SAVEPLOT)
+                                    QC_TEST_CODE, fn, SAVEPLOT, VERBOSE)
 
     return QC_Flags, QC_1st_failed_test
 
@@ -850,7 +850,7 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
 
 
 # function to apply tests and plot results (needed in function form for parallel processing)
-def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=True):
+def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
 
     print(iwmo)
 
@@ -866,7 +866,7 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=True):
 
     if SAVEPLOT:
         if VERBOSE:
-            print("Chekcing that dir is there, if not create it...")
+            print("Checking that dir is there, if not create it...")
         # create dir for output plots
         dout = DIR_PLOTS + "/" + fn_single_profiles[0].split('/')[-3]
         if not os.path.isdir(dout):
@@ -878,8 +878,6 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=True):
                 print("removing old plots in " + dout + "...")
                 print(DIR_PLOTS + iwmo.split("/")[-1] + "/*.png")
             oldfn = glob.glob(DIR_PLOTS + iwmo.split("/")[-1] + "/*.png")
-
-
             [os.remove(i) for i in oldfn]   
             if VERBOSE:
                 print("...done")
