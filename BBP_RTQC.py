@@ -139,7 +139,7 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
         # apply flag
         QC_Flags[ISBAD] = QC
-        QC_1st_failed_test[ISBAD] = QC_TEST_CODE
+        QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
 
 
         if VERBOSE:
@@ -147,7 +147,7 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
             print('applying QC=' + str(QC) + '...')
             
     if (PLOT) & (FAILED):
-        plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
+        plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
                             fn, SAVEPLOT, VERBOSE)
         
     return QC_Flags, QC_1st_failed_test
@@ -203,14 +203,14 @@ def BBP_Surface_hook_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
         FAILED = True
         # apply flag
         QC_Flags[ISBAD] = QC
-        QC_1st_failed_test[ISBAD] = QC_TEST_CODE
+        QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
         
         if VERBOSE:
             print('Failed Surface_hook_test')
             print('applying QC=' + str(QC) + '...')
             
     if (PLOT) & (FAILED):
-        plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
+        plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
                             fn, SAVEPLOT, VERBOSE)
         
     return QC_Flags, QC_1st_failed_test
@@ -296,14 +296,14 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
         FAILED = True
         # apply flag
         QC_Flags[ISBAD] = QC
-        QC_1st_failed_test[ISBAD] = QC_TEST_CODE
+        QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
         
         if VERBOSE:
             print('Failed Parking_hook_test')
             print('applying QC=' + str(QC) + '...')
             
     if (PLOT) & (FAILED):
-        plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
+        plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
                             fn, SAVEPLOT, VERBOSE)
         
     return QC_Flags, QC_1st_failed_test
@@ -369,10 +369,10 @@ def BBP_Negative_nonsurface_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
                 print('applying QC=' + str(QC) + '...')
                 
             QC_Flags[iQChigher] = QC
-            QC_1st_failed_test[iQChigher] = QC_TEST_CODE
+            QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
             
     if (PLOT) & (FAILED):
-        plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
+        plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
                             fn, SAVEPLOT, VERBOSE)
 
     return QC_Flags, QC_1st_failed_test
@@ -441,10 +441,10 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
                 print('Failed BBP_Noisy_Profile_test')
                 print('applying QC=' + str(QC) + '...')
             QC_Flags[iQChigher] = QC
-            QC_1st_failed_test[iQChigher] = QC_TEST_CODE
+            QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
 
     if (PLOT) & (FAILED):
-        plot_failed_QC_test(res, res*0., PRES, ISBAD, QC_Flags, QC_1st_failed_test, QC_TEST_CODE,
+        plot_failed_QC_test(res, res*0., PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
                             fn, SAVEPLOT, VERBOSE)
 
     
@@ -501,10 +501,10 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
                 
             QC_Flags[iQChigher] = QC
-            QC_1st_failed_test[iQChigher] = QC_TEST_CODE
+            QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
 
     if (PLOT) & (FAILED):
-                plot_failed_QC_test(BBPmf1, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test,
+                plot_failed_QC_test(BBPmf1, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE],
                                     QC_TEST_CODE, fn, SAVEPLOT, VERBOSE)
 
 
@@ -645,10 +645,10 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
                 print('Failed Missing_Data_test')
                 print('applying QC=' + str(QC) + '...')
             QC_Flags[iQChigher] = QC
-            QC_1st_failed_test[iQChigher] = QC_TEST_CODE
+            QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
 
     if (PLOT) & (FAILED):
-                plot_failed_QC_test(BBP, bin_counts, PRES, ISBAD, QC_Flags, QC_1st_failed_test,
+                plot_failed_QC_test(BBP, bin_counts, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE],
                                     QC_TEST_CODE, fn, SAVEPLOT, VERBOSE)
 
     return QC_Flags, QC_1st_failed_test
@@ -852,6 +852,17 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
 # function to apply tests and plot results (needed in function form for parallel processing)
 def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
 
+    # these are the tests and their codes
+    tests = {"A": "Global Range",
+             "A2": "Global Range: negative",
+             "B": "Noisy Profile",
+             "C": "High-Deep Value",
+             "D": "Surface Hook",
+             "E": "Missing Data",
+             "F": "Negative non-surface",
+             "G": "Parking Hook"
+             }
+
     print(iwmo)
 
     if len(iwmo)==0:
@@ -915,7 +926,11 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
 
         # initialise arrays with QC flags[0,:] = 1 (good data)
         BBP700_QC_flags = np.zeros(BBP700.shape)+1
-        BBP700_QC_1st_failed_test = np.full(shape=BBP700.shape, fill_value='0')
+        No_tests = 7 # total number of tests
+        BBP700_QC_1st_failed_test = dict.fromkeys(tests.keys())
+        for ikey in BBP700_QC_1st_failed_test.keys():
+            BBP700_QC_1st_failed_test[ikey] = np.full(shape=BBP700.shape, fill_value='0')
+        # BBP700_QC_1st_failed_test = np.full(shape=[BBP700.shape[0],No_tests], fill_value='0')
 
         # # Plot original profile even if no QC flag is raisef
         # plot_failed_QC_test(BBP700, BBP700mf1, PRES, BBP700*np.nan, BBP700_QC_flags, BBP700_QC_1st_failed_test, '0', fn_p, SAVEPLOT, VERBOSE)
@@ -931,7 +946,7 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
 
         # BBP_NOISY_PROFILE TEST
         BBP700_QC_flag, BBP700_QC_1st_failed_test, rel_res = BBP_Noisy_profile_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
-        if np.any(BBP700_QC_1st_failed_test=="B"):
+        if np.any(BBP700_QC_1st_failed_test["B"]!='0'):
             plot_failed_QC_test(BBP700, BBP700mf1, PRES, BBP700 * np.nan, BBP700_QC_flags, BBP700_QC_1st_failed_test,
                                 '0', fn_p, SAVEPLOT, VERBOSE)
 
@@ -953,34 +968,37 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
         # STUCK-VALUE TEST
 
         
-        ideep = np.where((np.asarray(PRES)>950.) & (np.asarray(PRES)<1050.))[0]
+        # ideep = np.where((np.asarray(PRES)>950.) & (np.asarray(PRES)<1050.))[0]
 
 
         
         
 
         # save results in res list
-        all_PRES.extend(PRES[innan])
-        all_BBP700.extend(BBP700[innan])
-        all_BBP700_QC_flag.extend(BBP700_QC_flag[innan])
-        all_BBP700_1st_fail.extend(BBP700_QC_1st_failed_test[innan])
+        # all_PRES.extend(PRES[innan])
+        # all_BBP700.extend(BBP700[innan])
+        # all_BBP700_QC_flag.extend(BBP700_QC_flag[innan])
+        # all_BBP700_1st_fail.extend(BBP700_QC_1st_failed_test[innan])
         
 
-        all_LAT[ifn_p] = LAT.tolist()
-        all_LON[ifn_p] = LON.tolist()
-        all_JULD[ifn_p] = JULD
+        # all_LAT[ifn_p] = LAT.tolist()
+        # all_LON[ifn_p] = LON.tolist()
+        # all_JULD[ifn_p] = JULD
         
-        
-        # save results in dictonary
-        prof = {"JULD": JULD,
-                "LAT": LAT.tolist(),
-                "LON": LON.tolist(),
-                "PRES": PRES[innan],
-                "BBP700": BBP700[innan],
-                "BBP700_QC_flag": BBP700_QC_flag[innan],
-                "BBP700_QC_1st_failed_test": BBP700_QC_1st_failed_test[innan]
-               }
-        
+        # create dictionary with results
+        prof = {}
+        prof["BBP700_QC_1st_failed_test"] = dict.fromkeys(tests.keys())
+        for ikey in prof["BBP700_QC_1st_failed_test"]:
+            prof["BBP700_QC_1st_failed_test"][ikey] = BBP700_QC_1st_failed_test[ikey][innan]
+        # add other keys in dictionary
+        prof["JULD"] = JULD
+        prof["LAT"] = LAT.tolist()
+        prof["LON"] = LON.tolist()
+        prof["PRES"] = PRES[innan]
+        prof["BBP700"] = BBP700[innan]
+        prof["BBP700_QC_flag"] = BBP700_QC_flag[innan]
+
+
         all_PROFS.extend([prof])
         del prof
         
