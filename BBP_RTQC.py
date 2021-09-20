@@ -80,10 +80,8 @@ def adaptive_medfilt1(x, y, PLOT=False):
 
 # ## Tests that do not remove the entire profile
 
-
 ##################################################################
 ##################################################################
-# test parameters defined outside function to make them global variables
 def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
                           fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
@@ -124,9 +122,9 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
     QC = 3
     QC_TEST_CODE = 'A' # or 'A2' if negative medfilt1 value is found
-    ISBAD = np.zeros(len(BBPmf1), dtype=bool) # initialise array with indices of where test failed  
+    ISBAD = np.zeros(len(BBPmf1), dtype=bool) # initialise array with indices of where test failed
 
-    # this is the test 
+    # this is the test
     ibad = np.where( (BBPmf1 > A_MAX_BBP700) | (BBPmf1 < A_MIN_BBP700) )[0]
 
     ISBAD[ibad] = 1
@@ -134,28 +132,27 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
         FAILED = True
         # flag entire profile if any negative value is found
         if np.any(BBPmf1 < A_MIN_BBP700):
-            QC_TEST_CODE = 'A2'  
-            ISBAD = np.where(BBPmf1)
+            QC_TEST_CODE = 'A2'
+            ISBAD = np.where(BBPmf1)[0]
 
         # apply flag
         QC_Flags[ISBAD] = QC
-        QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
+        QC_1st_failed_test[ISBAD] = QC_TEST_CODE
 
 
         if VERBOSE:
             print('Failed Global_Range_test')
             print('applying QC=' + str(QC) + '...')
-            
+
     if (PLOT) & (FAILED):
         plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
                             fn, SAVEPLOT, VERBOSE)
-        
+
     return QC_Flags, QC_1st_failed_test
 
 
 ##################################################################
 ##################################################################
-# test parameters defined outside function to make them global variables
 def BBP_Surface_hook_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
                           fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
@@ -203,7 +200,7 @@ def BBP_Surface_hook_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
         FAILED = True
         # apply flag
         QC_Flags[ISBAD] = QC
-        QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
+        QC_1st_failed_test[ISBAD] = QC_TEST_CODE
         
         if VERBOSE:
             print('Failed Surface_hook_test')
@@ -218,8 +215,7 @@ def BBP_Surface_hook_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
 ##################################################################
 ##################################################################
-# test parameters defined outside function to make them global variables
-def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1st_failed_test, 
+def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1st_failed_test,
                           fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
     # BBPmf1: nparray with medfilt BBP data
@@ -296,7 +292,7 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
         FAILED = True
         # apply flag
         QC_Flags[ISBAD] = QC
-        QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
+        QC_1st_failed_test[ISBAD] = QC_TEST_CODE
         
         if VERBOSE:
             print('Failed Parking_hook_test')
@@ -314,8 +310,6 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
 
 ##################################################################
 ##################################################################
-# test parameters defined outside function to make them global variables
-## example csiro/5905022/profiles/BD5905022_053.nc
 def BBP_Negative_nonsurface_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
                                  fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
@@ -362,14 +356,14 @@ def BBP_Negative_nonsurface_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
     if np.any(ibad):
         FAILED = True
         ISBAD[ibad] = 1
-        iQChigher = np.where(QC_Flags < QC) 
-        if iQChigher:
+        iQChigher = np.where(QC_Flags < QC)[0]
+        if iQChigher.any():
             if VERBOSE:
                 print('Failed BBP_Negative_nonsurface_test')
                 print('applying QC=' + str(QC) + '...')
                 
             QC_Flags[iQChigher] = QC
-            QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
+            QC_1st_failed_test[iQChigher] = QC_TEST_CODE
             
     if (PLOT) & (FAILED):
         plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
@@ -441,7 +435,7 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
                 print('Failed BBP_Noisy_Profile_test')
                 print('applying QC=' + str(QC) + '...')
             QC_Flags[iQChigher] = QC
-            QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
+            QC_1st_failed_test[iQChigher] = QC_TEST_CODE
 
     if (PLOT) & (FAILED):
         plot_failed_QC_test(res, res*0., PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
@@ -493,15 +487,13 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
     
     if np.any(ISBAD==1): # if ISBAD, then apply QC_flag=3
         FAILED = True
-        iQChigher = np.where(QC_Flags < QC) # but first check that there are no QCflags > than the one we want to assign in this profile
-        if iQChigher:
+        iQChigher = np.where(QC_Flags < QC)[0] # but first check that there are no QCflags > than the one we want to assign in this profile
+        if iQChigher.any():
             if VERBOSE:
                 print('Failed High_Deep_Values_test')
                 print('applying QC=' + str(QC) + '...')
-
-                
             QC_Flags[iQChigher] = QC
-            QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
+            QC_1st_failed_test[iQChigher] = QC_TEST_CODE
 
     if (PLOT) & (FAILED):
                 plot_failed_QC_test(BBPmf1, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE],
@@ -639,13 +631,13 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
          
     if ISBAD==1: # if ISBAD, then apply QC_flag
         FAILED = True
-        iQChigher = np.where(QC_Flags < QC) # but first check that there are no QCflags > than the one we want to assign in this profile
-        if iQChigher:
+        iQChigher = np.where(QC_Flags < QC)[0] # but first check that there are no QCflags > than the one we want to assign in this profile
+        if iQChigher.any():
             if VERBOSE:
                 print('Failed Missing_Data_test')
                 print('applying QC=' + str(QC) + '...')
             QC_Flags[iQChigher] = QC
-            QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
+            QC_1st_failed_test[iQChigher] = QC_TEST_CODE
 
     if (PLOT) & (FAILED):
                 plot_failed_QC_test(BBP, bin_counts, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE],
