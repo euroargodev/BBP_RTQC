@@ -1,6 +1,5 @@
 import numpy as np
 import xarray as xr
-import scipy.interpolate as spint
 import os
 import glob
 
@@ -15,9 +14,103 @@ import gc
 from BBP_RTQC_global_vars import *
 from BBP_RTQC_paths import *
 
-
+import json
 
 warnings.filterwarnings('ignore')
+
+
+def ini_flags(BBP700):
+    # initialise output array of flags for prep_json and test_tests
+    BBP700_QC_1st_failed_test = dict.fromkeys(tests.keys())
+    for ikey in BBP700_QC_1st_failed_test.keys():
+        BBP700_QC_1st_failed_test[ikey] = np.full(shape=BBP700.shape, fill_value='0')
+    return BBP700_QC_1st_failed_test
+
+
+
+
+
+def test_tests(code):
+    # compare current results of tests against existing BBP_RTQC_example_tests.json
+    f = open("BBP_RTQC_example_tests.json")  # open the text file
+    t = json.load(f)  # interpret the text file and make it usable by python
+    f.close()
+    a = []
+    for it, tmp in enumerate(t):
+        a.append(json.loads(t[it]))
+
+    # find index of code
+    icode = [it for it in range(len(a)) if a[it]['code']==code][0]
+
+    # create BBP700 array
+    BBP = np.asarray(a[icode]['input']['BBP'])
+    BBPmf1 = np.asarray(a[icode]['input']['BBPmf1'])
+    PRES = np.asarray(a[icode]['input']['PRES'])
+    if code=='G':
+        maxPRES = np.asarray(a[icode]['input']['maxPRES'])
+        PARK_PRES = np.asarray(a[icode]['input']['PARK_PRES'])
+
+    # initialise BBP700_QC_1st_failed_test
+    BBP_QC_failed_test = ini_flags(BBP)
+
+    def myfunc(msg='assert OK'):
+        print(msg)
+        return True
+
+    if 'A' == code:
+        #### Global range
+        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Global_range_test(BBP, BBPmf1, PRES,
+                                                                        np.ones(BBP.shape),
+                                                                        BBP_QC_failed_test,
+                                                                        'test_tests')
+    elif code == 'A2':
+        #### Global range
+        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Global_range_test(BBP, BBPmf1, PRES,
+                                                                        np.ones(BBP.shape),
+                                                                        BBP_QC_failed_test,
+                                                                        'test_tests')
+    elif code == 'B':
+        #### Noisy Profile
+        QC_FLAGS_OUT, BBP_QC_failed_test, tmp = BBP_Noisy_profile_test(BBP, BBPmf1, PRES,
+                                                                        np.ones(BBP.shape),
+                                                                        BBP_QC_failed_test,
+                                                                        'test_tests')
+    elif code == 'C':
+        #### High-Deep Value
+        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_High_Deep_Values_test(BBPmf1, PRES,
+                                                                         np.ones(BBP.shape),
+                                                                         BBP_QC_failed_test,
+                                                                         'test_tests')
+    elif code == 'D':
+        #### Surface Hook
+        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Surface_hook_test(BBP, BBPmf1, PRES,
+                                                                         np.ones(BBP.shape),
+                                                                         BBP_QC_failed_test,
+                                                                         'test_tests')
+    elif code == 'E':
+        #### Missing Data
+        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Missing_Data_test(BBP, PRES,
+                                                                         np.ones(BBP.shape),
+                                                                         BBP_QC_failed_test,
+                                                                         'test_tests')
+    elif code == 'F':
+        #### Negative non-surface
+        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Negative_nonsurface_test(BBP, PRES,
+                                                                                np.ones(BBP.shape),
+                                                                                BBP_QC_failed_test,
+                                                                                'test_tests')
+    elif code == 'G':
+        #### Parking Hook
+
+        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES,
+                                                                        np.ones(BBP.shape),
+                                                                        BBP_QC_failed_test,
+                                                                        'test_tests')
+
+    assert np.all(QC_FLAGS_OUT == a[icode]['output']['flags_out']) and myfunc(tests[code] + ' test succeded.'), 'Assertion error for ' + tests[code]
+
+
+
 
 # medfilt1 function similar to Octave's that does not bias extremes of dataset towards zero
 def medfilt1(data, kernel_size, endcorrection='shrinkkernel'):
@@ -136,6 +229,12 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
         # apply flag
         QC_Flags[ISBAD] = QC
         QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
+
+        # iQChigher = np.where(QC_Flags < QC)[0] # but first check that there are no QCflags > than the one we want to assign in this profile
+        # if iQChigher.any():
+        #     QC_Flags[iQChigher] = QC
+        #     QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
+
 
 
         if VERBOSE:
@@ -841,17 +940,17 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
 
 # function to apply tests and plot results (needed in function form for parallel processing)
 def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
-
-    # these are the tests and their codes
-    tests = {"A": "Global Range",
-             "A2": "Global Range: negative",
-             "B": "Noisy Profile",
-             "C": "High-Deep Value",
-             "D": "Surface Hook",
-             "E": "Missing Data",
-             "F": "Negative non-surface",
-             "G": "Parking Hook"
-             }
+    #
+    # # these are the tests and their codes
+    # tests = {"A": "Global Range",
+    #          "A2": "Global Range: negative",
+    #          "B": "Noisy Profile",
+    #          "C": "High-Deep Value",
+    #          "D": "Surface Hook",
+    #          "E": "Missing Data",
+    #          "F": "Negative non-surface",
+    #          "G": "Parking Hook"
+    #          }
 
     print(iwmo)
 
@@ -908,14 +1007,14 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
 
         # initialise arrays with QC flags[0,:] = 1 (good data)
         BBP700_QC_flags = np.zeros(BBP700.shape)+1
-        No_tests = len(tests) # total number of tests
         BBP700_QC_1st_failed_test = dict.fromkeys(tests.keys())
         for ikey in BBP700_QC_1st_failed_test.keys():
             BBP700_QC_1st_failed_test[ikey] = np.full(shape=BBP700.shape, fill_value='0')
 
         # # Plot original profile even if no QC flag is raisef
         # plot_failed_QC_test(BBP700, BBP700mf1, PRES, BBP700*np.nan, BBP700_QC_flags, BBP700_QC_1st_failed_test, '0', fn_p, SAVEPLOT, VERBOSE)
-        
+
+
         # GLOBAL-RANGE TEST for BBP700
         BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Global_range_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
 
@@ -939,18 +1038,6 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
         
         # NEGATIVE NON-SURFACE TEST
         BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Negative_nonsurface_test(BBP700, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
-
-        # ANIMAL SPIKES
-
-        # PROFILE-STEP-CHANGE TEST (e.g., 6902737_262)
-        
-        # GROUNDED_BBP TEST
-    
-        # STUCK-VALUE TEST
-
-        
-        # ideep = np.where((np.asarray(PRES)>950.) & (np.asarray(PRES)<1050.))[0]
-
 
         
 
