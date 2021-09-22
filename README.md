@@ -13,3 +13,9 @@ I will do my best to generate a "binder" version of this as soon as I can.
 I've tried to use functions as much as possible, so you can already extract the functions with the tests (and the adaptive median filter).
 
 Any help in tidying things up is very welcome :-)
+
+
+TO-DO LIST
+- Either Remove iQChigher from BBP_RTQC.py or make sure that every test uses it
+- Check that all sub-tests are asserted
+-
