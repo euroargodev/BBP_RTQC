@@ -36,8 +36,6 @@ def medfilt1(data, kernel_size, endcorrection='shrinkkernel'):
      return filtered_data
 
 
-
-
 # function to define adaptive median filtering based on Christina Schallemberg's suggestion for CHLA
 def adaptive_medfilt1(x, y, PLOT=False):
     # applies a median filtering followin Christina Schlallemberb's recommendations
@@ -137,7 +135,7 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
         # apply flag
         QC_Flags[ISBAD] = QC
-        QC_1st_failed_test[ISBAD] = QC_TEST_CODE
+        QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
 
 
         if VERBOSE:
@@ -200,8 +198,8 @@ def BBP_Surface_hook_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
         FAILED = True
         # apply flag
         QC_Flags[ISBAD] = QC
-        QC_1st_failed_test[ISBAD] = QC_TEST_CODE
-        
+        QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
+
         if VERBOSE:
             print('Failed Surface_hook_test')
             print('applying QC=' + str(QC) + '...')
@@ -251,14 +249,14 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
     FAILED = False
 
     QC = 4
-    QC_TEST_CODE = 'G'    
+    QC_TEST_CODE = 'G'
     ISBAD = np.zeros(len(BBP), dtype=bool) # initialise flag
-        
+
     if (np.isnan(maxPRES)) | (np.isnan(PARK_PRES)):
         print('WARNING:\nmaxPRES='+str(maxPRES)+' dbars,\nPARK_PRES='+str(PARK_PRES))
         ipdb.set_trace()
-        
-     
+
+
     # check that there are enough data to run the test
     imaxPRES = np.where(PRES==maxPRES)[0][0]
     deltaPRES = PRES[imaxPRES] - PRES[imaxPRES-1]
@@ -266,8 +264,8 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
         if VERBOSE:
             print('vertical resolution is too low to check for Parking Hook')
         return QC_Flags, QC_1st_failed_test
-        
-        
+
+
     # check if max PRES is 'close' (i.e., within 100 dbars) to PARK_PRES
     if abs(maxPRES - PARK_PRES)>=100:
         return QC_Flags, QC_1st_failed_test
@@ -283,25 +281,25 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
     stdBBP = np.nanstd(BBP[iPRESmed])
 #     stdBBP = (np.nanpercentile(BBPmf1[iPRESmed], 84) - np.nanpercentile(BBPmf1[iPRESmed], 16))/2.
     baseline = medBBP + G_STDFACTOR*stdBBP
-    
+
     # this is the test
     ibad = np.where( BBP[iPREStest] > baseline )[0]
-    ISBAD[iPREStest[ibad]] = 1  
-    
+    ISBAD[iPREStest[ibad]] = 1
+
     if np.any(ISBAD==1): # If ISBAD is not empty
         FAILED = True
         # apply flag
         QC_Flags[ISBAD] = QC
-        QC_1st_failed_test[ISBAD] = QC_TEST_CODE
-        
+        QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
+
         if VERBOSE:
             print('Failed Parking_hook_test')
             print('applying QC=' + str(QC) + '...')
-            
+
     if (PLOT) & (FAILED):
         plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
                             fn, SAVEPLOT, VERBOSE)
-        
+
     return QC_Flags, QC_1st_failed_test
 
 
@@ -345,13 +343,13 @@ def BBP_Negative_nonsurface_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
     FAILED = False
 
     QC = 3
-    QC_TEST_CODE = 'F'    
+    QC_TEST_CODE = 'F'
     ISBAD = np.zeros(len(BBP), dtype=bool) # initialise flag
 #     ISBAD = np.array([])
 #     iDEEP  = np.where( PRES > D_ISURF )[0]
-     
-    # this is the test 
-    ibad = np.where( (BBP < D_MIN_BBP700) & (PRES > D_ISURF) )[0] 
+
+    # this is the test
+    ibad = np.where( (BBP < D_MIN_BBP700) & (PRES > D_ISURF) )[0]
 
     if np.any(ibad):
         FAILED = True
@@ -361,10 +359,10 @@ def BBP_Negative_nonsurface_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
             if VERBOSE:
                 print('Failed BBP_Negative_nonsurface_test')
                 print('applying QC=' + str(QC) + '...')
-                
+
             QC_Flags[iQChigher] = QC
-            QC_1st_failed_test[iQChigher] = QC_TEST_CODE
-            
+            QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
+
     if (PLOT) & (FAILED):
         plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
                             fn, SAVEPLOT, VERBOSE)
@@ -406,15 +404,15 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
     QC = 3; # flag to apply if the result of the test is true
     QC_TEST_CODE = 'B'
     ISBAD = np.array([]) # flag for noisy profile
-    
+
 #     rel_res = np.empty(BBP.shape)
 #     rel_res[:] = np.nan
-    
+
     res = np.empty(BBP.shape)
     res[:] = np.nan
-    
+
     innan = np.where(~np.isnan(BBP))[0]
-    
+
     if len(innan)>10: # if we have at least 10 points in the profile
 
         #new constrain: noise should be below 100 dbars
@@ -435,13 +433,13 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
                 print('Failed BBP_Noisy_Profile_test')
                 print('applying QC=' + str(QC) + '...')
             QC_Flags[iQChigher] = QC
-            QC_1st_failed_test[iQChigher] = QC_TEST_CODE
+            QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
 
     if (PLOT) & (FAILED):
         plot_failed_QC_test(res, res*0., PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
                             fn, SAVEPLOT, VERBOSE)
 
-    
+
     return QC_Flags, QC_1st_failed_test, res
 
 
@@ -479,12 +477,12 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
     QC = 3; # flag to apply if the result of the test is true
     QC_TEST_CODE = 'C'
     ISBAD = np.zeros(len(BBPmf1), dtype=bool) # flag for noisy profile
-    
-    # this is the test 
+
+    # this is the test
     iDEEP = np.where(PRES>C_DEPTH_THRESH)
     if (np.nanmedian(BBPmf1[iDEEP]) > C_DEEP_BBP700_THRESH) & ( len(BBPmf1[iDEEP]) >= C_N_of_ANOM_POINTS):
         ISBAD = np.ones(len(BBPmf1), dtype=bool)
-    
+
     if np.any(ISBAD==1): # if ISBAD, then apply QC_flag=3
         FAILED = True
         iQChigher = np.where(QC_Flags < QC)[0] # but first check that there are no QCflags > than the one we want to assign in this profile
@@ -493,14 +491,14 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
                 print('Failed High_Deep_Values_test')
                 print('applying QC=' + str(QC) + '...')
             QC_Flags[iQChigher] = QC
-            QC_1st_failed_test[iQChigher] = QC_TEST_CODE
+            QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
 
     if (PLOT) & (FAILED):
                 plot_failed_QC_test(BBPmf1, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE],
                                     QC_TEST_CODE, fn, SAVEPLOT, VERBOSE)
 
 
- 
+
     return QC_Flags, QC_1st_failed_test
 
 
@@ -543,15 +541,15 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     FAILED = False
 
-    QC_all = [np.nan, np.nan, np.nan, np.nan]    
-    QC_all[0] = 2 # flag to apply if shallow profile 
+    QC_all = [np.nan, np.nan, np.nan, np.nan]
+    QC_all[0] = 2 # flag to apply if shallow profile
     QC_all[1] = 3 # flag to apply if the result of the test is true
     QC_all[2] = 4 # flag to apply if there are data only within one size bin
-    
+
     QC_TEST_CODE = 'E'
     MIN_N_PERBIN = 1 # minimum number of points in each bin
     ISBAD = 0 # flag for noisy profile
-    
+
     # bin the profile into 100-dbars bins
     bins = np.linspace(50, 1000, 10) # create 10 bins between 0 and 1000 dbars
     PRESbin = np.digitize(PRES, bins) # assign PRES values to each bin
@@ -561,29 +559,29 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
             bin_counts[i] = len(np.where(PRES<bins[i])[0])
         else:
             bin_counts[i] = len(np.where((PRES>=bins[i-1]) & (PRES<bins[i]))[0])
-            
+
     # this is the actual test
     if np.any(np.nonzero(bin_counts<MIN_N_PERBIN)[0]):
-        ISBAD = 1  
-        
+        ISBAD = 1
+
         # find which bins contain data
         nonempty = np.where(bin_counts>0)[0] # index of bins with data inside
-        
+
         if len(nonempty)>1: ########## TRY THIS INSTEAD LATER  if nonempty.any():
             test_bin = np.linspace(0, nonempty[-1], nonempty[-1]+1) # create array with consecutive indices from 0 to the last element of nonempty
-            
+
             # if there is only one bin with data then
-            if len(np.nonzero(bin_counts>MIN_N_PERBIN)[0])==1: 
+            if len(np.nonzero(bin_counts>MIN_N_PERBIN)[0])==1:
                 print("data only in one bin: QC=" + str(QC_all[2]))
                 QC = QC_all[2]
 
-            # if there are consecutive bins from zero index 
+            # if there are consecutive bins from zero index
             # and if not all bins contain data
-            elif (np.all(test_bin==nonempty)) & (nonempty[-1]<9) & (np.nanmax(PRES) >= bins.max()): 
+            elif (np.all(test_bin==nonempty)) & (nonempty[-1]<9) & (np.nanmax(PRES) >= bins.max()):
                 if VERBOSE:
                         print("shallow profile due to missing data: QC=" + str(QC_all[1]))
                 QC = QC_all[1]
-                
+
             # check if max(PRES)<maxPresbin to decide if this was a profile that was programmed to be shallow
             elif (np.all(test_bin==nonempty)) & (nonempty[-1]<9) & (np.nanmax(PRES) < bins.max()):
                 if VERBOSE:
@@ -591,13 +589,13 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
                 # compute median value below 200 dbars to check for high-deep values
                 iGT200 = np.where(PRES>E_PRESTHRESH)[0]
-        
+
                 if not iGT200.any(): # if there are no data deeper than 200 dbars, then set QC=3 without checking what the values are
                     if VERBOSE:
                         print("----profile shallower than 200 dbars: QC=" + str(QC_all[1]))
                     QC = QC_all[1]
 
-                else:    
+                else:
                     # compute median BBP value below 200 dbars
                     medBBPGT200 = np.nanmedian(BBP[iGT200])
 
@@ -607,7 +605,7 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
                             print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars) no BBP data below 200 dbars) : QC=" + str(QC_all[1]))
                         QC = QC_all[1]
 
-                    elif medBBPGT200<E_DEEP_BBP700_THRESH:    
+                    elif medBBPGT200<E_DEEP_BBP700_THRESH:
                     # set ISBAD so that the test does not fail when it's a shallow profile without high-deep values
                         if VERBOSE:
                             print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars)) : QC=" + str(QC_all[0]))
@@ -618,17 +616,17 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
                         if VERBOSE:
                             print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars) with high deep values (medBBPGT200=" + str(medBBPGT200) + "): QC=" + str(QC_all[1]))
                         QC = QC_all[1]
-                    
 
-            # if missing data in the profile, but not cosecutively from bottom, then  
+
+            # if missing data in the profile, but not cosecutively from bottom, then
             else:
                 print("data in some bins missing: QC=" + str(QC_all[1]))
                 QC = QC_all[1]
-                
+
         else: # this is for when we have no data at all, then
             print("no data at all: QC=4")
             QC = QC_all[2]
-         
+
     if ISBAD==1: # if ISBAD, then apply QC_flag
         FAILED = True
         iQChigher = np.where(QC_Flags < QC)[0] # but first check that there are no QCflags > than the one we want to assign in this profile
@@ -637,7 +635,7 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
                 print('Failed Missing_Data_test')
                 print('applying QC=' + str(QC) + '...')
             QC_Flags[iQChigher] = QC
-            QC_1st_failed_test[iQChigher] = QC_TEST_CODE
+            QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
 
     if (PLOT) & (FAILED):
                 plot_failed_QC_test(BBP, bin_counts, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE],

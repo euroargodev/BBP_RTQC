@@ -1,3 +1,15 @@
+# these are the tests and their codes
+tests = {"A": "Global Range",
+         "A2": "Global Range negative medfilt1 values",
+         "B": "Noisy Profile",
+         "C": "High-Deep Value",
+         "D": "Surface Hook", 
+         "E": "Missing Data",
+         "F": "Negative non-surface",
+         "G": "Parking Hook"      
+        }
+
+
 # Global range
 A_MIN_BBP700 = 0 # [1/m]
 A_MAX_BBP700 = 0.01 # [1/m] REVISED VALUE (very conservative estimate based on histograms in fig 2 of Bisson et al., 2019, 10.1364/OE.27.030191)
