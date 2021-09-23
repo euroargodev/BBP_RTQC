@@ -517,12 +517,6 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
     # update QC_Flags to 3 when bad profiles are found
     if len(ISBAD)>0:
         FAILED = True
-        #
-        iQChigher = np.where(QC_Flags < QC)
-        # if iQChigher:
-        #     QC_Flags[iQChigher] = QC
-        #     QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
-
         QC_Flags[:] = QC
         QC_1st_failed_test[QC_TEST_CODE][:] = QC_TEST_CODE
 
@@ -580,13 +574,13 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
     if np.any(ISBAD==1): # if ISBAD, then apply QC_flag=3
         FAILED = True
-        iQChigher = np.where(QC_Flags < QC)[0] # but first check that there are no QCflags > than the one we want to assign in this profile
-        if iQChigher.any():
-            if VERBOSE:
-                print('Failed High_Deep_Values_test')
-                print('applying QC=' + str(QC) + '...')
-            QC_Flags[iQChigher] = QC
-            QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
+
+        QC_Flags[ISBAD] = QC
+        QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
+
+        if VERBOSE:
+            print('Failed High_Deep_Values_test')
+            print('applying QC=' + str(QC) + '...')
 
     if (PLOT) & (FAILED):
                 plot_failed_QC_test(BBPmf1, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE],
@@ -719,18 +713,18 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
                 QC = QC_all[1]
 
         else: # this is for when we have no data at all, then
-            print("no data at all: QC=4")
+            print("no data at all: QC=" + str(QC_all[2]))
             QC = QC_all[2]
 
-    if ISBAD==1: # if ISBAD, then apply QC_flag
+    if ISBAD == 1: # if ISBAD, then apply QC_flag
         FAILED = True
-        iQChigher = np.where(QC_Flags < QC)[0] # but first check that there are no QCflags > than the one we want to assign in this profile
-        if iQChigher.any():
-            if VERBOSE:
-                print('Failed Missing_Data_test')
-                print('applying QC=' + str(QC) + '...')
-            QC_Flags[iQChigher] = QC
-            QC_1st_failed_test[QC_TEST_CODE][iQChigher] = QC_TEST_CODE
+        i2flag = np.where(QC_Flags < QC)[0]
+        QC_Flags[i2flag] = QC
+        QC_1st_failed_test[QC_TEST_CODE][i2flag] = QC_TEST_CODE
+
+        if VERBOSE:
+            print('Failed Missing_Data_test')
+            print('applying QC=' + str(QC) + '...')
 
     if (PLOT) & (FAILED):
                 plot_failed_QC_test(BBP, bin_counts, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE],
