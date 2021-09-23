@@ -16,6 +16,6 @@ Any help in tidying things up is very welcome :-)
 
 
 TO-DO LIST
-- Either Remove iQChigher from BBP_RTQC.py or make sure that every test uses it
 - Check that all sub-tests are asserted
--
+- Rewrite README.md file to describe current status of repo 
+- 
