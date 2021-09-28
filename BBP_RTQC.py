@@ -630,7 +630,7 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     FAILED = False
 
-    QC_all = [np.nan, np.nan, np.nan, np.nan]
+    QC_all = [np.nan, np.nan, np.nan, np.nan] ######################################## DO WE NEED 4 ELEMENTS?
     QC_all[0] = 2 # flag to apply if shallow profile
     QC_all[1] = 3 # flag to apply if the result of the test is true
     QC_all[2] = 4 # flag to apply if there are data only within one size bin
@@ -641,7 +641,7 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     # bin the profile into 100-dbars bins
     bins = np.linspace(50, 1000, 10) # create 10 bins between 0 and 1000 dbars
-    PRESbin = np.digitize(PRES, bins) # assign PRES values to each bin
+    PRESbin = np.digitize(PRES, bins) # assign PRES values to each bin      ######################################## check that PRESbin == bin_counts
     bin_counts = np.zeros(bins.shape)*np.nan
     for i in range(len(bins)):
         if i==0:
@@ -654,34 +654,31 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
         ISBAD = 1
 
         # find which bins contain data
-        nonempty = np.where(bin_counts>0)[0] # index of bins with data inside
+        nonempty = np.where(bin_counts>0)[0] # index of bins that contain data points
 
-        if len(nonempty)>1: ########## TRY THIS INSTEAD LATER  if nonempty.any():
-            test_bin = np.linspace(0, nonempty[-1], nonempty[-1]+1) # create array with consecutive indices from 0 to the last element of nonempty
+        if len(nonempty)>1: ############################################################ TRY THIS INSTEAD LATER  if nonempty.any():
+            test_bin = np.linspace(0, nonempty[-1], nonempty[-1]+1) # create array with consecutive indices from 0 to the last non-empty element of nonempty
 
             # if there is only one bin with data then
             if len(np.nonzero(bin_counts>MIN_N_PERBIN)[0])==1:
-                print("data only in one bin: QC=" + str(QC_all[2]))
+                if VERBOSE: print("data only in one bin: QC=" + str(QC_all[2]))
                 QC = QC_all[2]
 
             # if there are consecutive bins from zero index
             # and if not all bins contain data
-            elif (np.all(test_bin==nonempty)) & (nonempty[-1]<9) & (np.nanmax(PRES) >= bins.max()):
-                if VERBOSE:
-                        print("shallow profile due to missing data: QC=" + str(QC_all[1]))
+            elif (np.all(test_bin==nonempty)) & (nonempty[-1]<9) & (np.nanmax(PRES) >= bins.max()):############################################################ may have to set bins.max()=990 instead of 1000
+                if VERBOSE: print("shallow profile due to missing data: QC=" + str(QC_all[1]))
                 QC = QC_all[1]
 
             # check if max(PRES)<maxPresbin to decide if this was a profile that was programmed to be shallow
             elif (np.all(test_bin==nonempty)) & (nonempty[-1]<9) & (np.nanmax(PRES) < bins.max()):
-                if VERBOSE:
-                    print("shallow profile (maxPRES="+str(np.nanmax(PRES))+") dbars. Need more checks...")
+                if VERBOSE: print("shallow profile (maxPRES="+str(np.nanmax(PRES))+") dbars. Need more checks...")
 
                 # compute median value below 200 dbars to check for high-deep values
                 iGT200 = np.where(PRES>E_PRESTHRESH)[0]
 
                 if not iGT200.any(): # if there are no data deeper than 200 dbars, then set QC=3 without checking what the values are
-                    if VERBOSE:
-                        print("----profile shallower than 200 dbars: QC=" + str(QC_all[1]))
+                    if VERBOSE: print("----profile shallower than 200 dbars: QC=" + str(QC_all[1]))
                     QC = QC_all[1]
 
                 else:
@@ -690,30 +687,27 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
                     # if there are no non-NaN BBP values
                     if (not medBBPGT200) | np.isnan(medBBPGT200):
-                        if VERBOSE:
-                            print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars) no BBP data below 200 dbars) : QC=" + str(QC_all[1]))
+                        if VERBOSE: print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars) no BBP data below 200 dbars) : QC=" + str(QC_all[1]))
                         QC = QC_all[1]
 
                     elif medBBPGT200<E_DEEP_BBP700_THRESH:
                     # set ISBAD so that the test does not fail when it's a shallow profile without high-deep values
-                        if VERBOSE:
-                            print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars)) : QC=" + str(QC_all[0]))
+                        if VERBOSE: print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars)) : QC=" + str(QC_all[0]))
                         ISBAD = 0
                         QC = QC_all[0]
 
                     elif medBBPGT200>=E_DEEP_BBP700_THRESH:
-                        if VERBOSE:
-                            print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars) with high deep values (medBBPGT200=" + str(medBBPGT200) + "): QC=" + str(QC_all[1]))
+                        if VERBOSE: print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars) with high deep values (medBBPGT200=" + str(medBBPGT200) + "): QC=" + str(QC_all[1]))
                         QC = QC_all[1]
 
 
             # if missing data in the profile, but not cosecutively from bottom, then
             else:
-                print("data in some bins missing: QC=" + str(QC_all[1]))
+                if VERBOSE: print("data in some bins missing: QC=" + str(QC_all[1]))
                 QC = QC_all[1]
 
         else: # this is for when we have no data at all, then
-            print("no data at all: QC=" + str(QC_all[2]))
+            if VERBOSE: print("no data at all: QC=" + str(QC_all[2]))
             QC = QC_all[2]
 
     if ISBAD == 1: # if ISBAD, then apply QC_flag
