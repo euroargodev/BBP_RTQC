@@ -18,16 +18,12 @@ import json
 
 warnings.filterwarnings('ignore')
 
-
 def ini_flags(BBP700):
     # initialise output array of flags for prep_json and test_tests
     BBP700_QC_1st_failed_test = dict.fromkeys(tests.keys())
     for ikey in BBP700_QC_1st_failed_test.keys():
         BBP700_QC_1st_failed_test[ikey] = np.full(shape=BBP700.shape, fill_value='0')
     return BBP700_QC_1st_failed_test
-
-
-
 
 
 def test_tests(ia):
@@ -109,7 +105,26 @@ def test_tests(ia):
 
     assert np.all(QC_FLAGS_OUT == a[ia]['output']['flags_out']) and myfunc(tests[code] + ' / ' + a[ia]['specifics'] + ': test succeded.'), 'Assertion error for ' + tests[code]
 
+def test_BBP_RTQC():
+    '''
+    function to run example tests
+    '''
 
+    # read json file
+    f = open("BBP_RTQC_example_tests.json")  # open the text file
+    t = json.load(f)  # interpret the text file and make it usable by python
+    f.close()
+
+    # store json data in list
+    a = []
+    for it, tmp in enumerate(t):
+        a.append(json.loads(t[it]))
+
+    # assert tests
+    for ia in range(len(a)):
+        test_tests(ia)
+
+    return
 
 
 # medfilt1 function similar to Octave's that does not bias extremes of dataset towards zero
