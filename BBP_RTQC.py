@@ -670,7 +670,8 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
         # find which bins contain data
         nonempty = np.where(bin_counts>0)[0] # index of bins that contain data points
 
-        if len(nonempty)>1: ############################################################ TRY THIS INSTEAD LATER  if nonempty.any():
+        # if len(nonempty)>1:
+        if nonempty.any():############################################################ TRY THIS INSTEAD LATER  if nonempty.any():
             test_bin = np.linspace(0, nonempty[-1], nonempty[-1]+1) # create array with consecutive indices from 0 to the last non-empty element of nonempty
 
             # if there is only one bin with data then
