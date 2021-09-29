@@ -644,7 +644,7 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     FAILED = False
 
-    QC_all = [np.nan, np.nan, np.nan, np.nan] ######################################## DO WE NEED 4 ELEMENTS?
+    QC_all = [np.nan, np.nan, np.nan] 
     QC_all[0] = 2 # flag to apply if shallow profile
     QC_all[1] = 3 # flag to apply if the result of the test is true
     QC_all[2] = 4 # flag to apply if there are data only within one size bin
