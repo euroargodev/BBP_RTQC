@@ -30,7 +30,7 @@ def ini_flags(BBP700):
 
 
 
-def test_tests(code):
+def test_tests(ia):
     # compare current results of tests against existing BBP_RTQC_example_tests.json
     f = open("BBP_RTQC_example_tests.json")  # open the text file
     t = json.load(f)  # interpret the text file and make it usable by python
@@ -40,15 +40,15 @@ def test_tests(code):
         a.append(json.loads(t[it]))
 
     # find index of code
-    icode = [it for it in range(len(a)) if a[it]['code']==code][0]
+    code = a[ia]['code']
 
     # create BBP700 array
-    BBP = np.asarray(a[icode]['input']['BBP'])
-    BBPmf1 = np.asarray(a[icode]['input']['BBPmf1'])
-    PRES = np.asarray(a[icode]['input']['PRES'])
-    if code=='G':
-        maxPRES = np.asarray(a[icode]['input']['maxPRES'])
-        PARK_PRES = np.asarray(a[icode]['input']['PARK_PRES'])
+    BBP = np.asarray(a[ia]['input']['BBP'])
+    BBPmf1 = np.asarray(a[ia]['input']['BBPmf1'])
+    PRES = np.asarray(a[ia]['input']['PRES'])
+    if code == 'G':
+        maxPRES = np.asarray(a[ia]['input']['maxPRES'])
+        PARK_PRES = np.asarray(a[ia]['input']['PARK_PRES'])
 
     # initialise BBP700_QC_1st_failed_test
     BBP_QC_failed_test = ini_flags(BBP)
@@ -57,7 +57,7 @@ def test_tests(code):
         print(msg)
         return True
 
-    if 'A' == code:
+    if code == 'A':
         #### Global range
         QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Global_range_test(BBP, BBPmf1, PRES,
                                                                         np.ones(BBP.shape),
@@ -107,7 +107,7 @@ def test_tests(code):
                                                                         BBP_QC_failed_test,
                                                                         'test_tests')
 
-    assert np.all(QC_FLAGS_OUT == a[icode]['output']['flags_out']) and myfunc(tests[code] + ' test succeded.'), 'Assertion error for ' + tests[code]
+    assert np.all(QC_FLAGS_OUT == a[ia]['output']['flags_out']) and myfunc(tests[code] + ' / ' + a[ia]['specifics'] + ': test succeded.'), 'Assertion error for ' + tests[code]
 
 
 
