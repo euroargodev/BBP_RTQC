@@ -282,12 +282,12 @@ def BBP_Surface_hook_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
     QC = 3
     QC_TEST_CODE = 'D'    
     ISBAD = np.zeros(len(BBPmf1), dtype=bool) # initialise flag
-    iSURF  = np.where(PRES<=D_ISURF)[0]
+    iSURF = np.where(PRES<=D_ISURF)[0]
      
     # this is the test 
     ibad = np.where( (BBP[iSURF] < D_MIN_BBP700) )[0]
     ISBAD[ibad] = 1
-    if np.any(ISBAD==1): # If ISBAD is not empty
+    if np.any(ISBAD == 1): # If ISBAD is not empty
         FAILED = True
         # apply flag
         QC_Flags[ISBAD] = QC
@@ -346,16 +346,15 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
     ISBAD = np.zeros(len(BBP), dtype=bool) # initialise flag
 
     if (np.isnan(maxPRES)) | (np.isnan(PARK_PRES)):
-        print('WARNING:\nmaxPRES='+str(maxPRES)+' dbars,\nPARK_PRES='+str(PARK_PRES))
+        if VERBOSE: print('WARNING:\nmaxPRES='+str(maxPRES)+' dbars,\nPARK_PRES='+str(PARK_PRES))
         ipdb.set_trace()
 
 
     # check that there are enough data to run the test
     imaxPRES = np.where(PRES==maxPRES)[0][0]
     deltaPRES = PRES[imaxPRES] - PRES[imaxPRES-1]
-    if deltaPRES>G_DELTAPRES2:
-        if VERBOSE:
-            print('vertical resolution is too low to check for Parking Hook')
+    if deltaPRES > G_DELTAPRES2:
+        if VERBOSE: print('vertical resolution is too low to check for Parking Hook')
         return QC_Flags, QC_1st_failed_test
 
 
@@ -850,11 +849,10 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
     # check if BBP700 is present
     v = set(ds.data_vars)
     if 'BBP700' not in v:
-        if VERBOSE:
-            print('no BBP700 for this cycle')
+        if VERBOSE: print('no BBP700 for this cycle')
         ds.close()
         # set returned values to flag
-        PRES = BBP700 = PRES = BBP700 = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
+        PRES = BBP700 = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
         return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan
         
 
@@ -865,10 +863,9 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
     if np.any(tmp):
         N_PROF = np.where(tmp)[0][0]
     else:
-        if VERBOSE:
-            print("this profile has less than 5 data points: skipping ")
+        if VERBOSE: print("this profile has less than 5 data points: skipping ")
         # set returned values to flag
-        PRES = BBP700 = PRES = BBP700 = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
+        PRES = BBP700 = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
         return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan
 
 
@@ -883,6 +880,9 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
     # compute median filtered profile
     BBP700mf1 = np.zeros(BBP700.shape)*np.nan
     BBP700mf1[innan] = adaptive_medfilt1(PRES[innan], BBP700[innan])
+
+
+
 
 ######### needed for Parking-hook test #########################################  
     # Read Mission Number in profile to extract PARKING DEPTH
