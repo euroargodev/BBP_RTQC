@@ -297,11 +297,11 @@ def BBP_Surface_hook_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
     QC = 3
     QC_TEST_CODE = 'D'    
     ISBAD = np.zeros(len(BBPmf1), dtype=bool) # initialise flag
-    iSURF = np.where(PRES<=D_ISURF)[0]
+    iSURF = np.where(PRES <= D_ISURF)[0]
      
     # this is the test 
     ibad = np.where( (BBP[iSURF] < D_MIN_BBP700) )[0]
-    ISBAD[ibad] = 1
+    ISBAD[iSURF[ibad]] = 1
     if np.any(ISBAD == 1): # If ISBAD is not empty
         FAILED = True
         # apply flag
