@@ -12,7 +12,7 @@ The current version (30-Sep-2021) of the tests has not been presented to the com
 The code is written in Python3 or as Jupyter Notebooks.
 
 ## Test functions
-`BBP_RTQC.py`: This sript contains all the proposed tests, besides other functions that are needed to QC the data. It is loaded as a module by various notebooks.
+[`BBP_RTQC.py`](https://github.com/euroargodev/BBP_RTQC/blob/main/BBP_RTQC.py): This sript contains all the proposed tests, besides other functions that are needed to QC the data. It is loaded as a module by various notebooks.
 
 ## Global variables
 `BBP_RTQC_global_vars.py`: This script contains all global variables needed by the different notebooks. It is loaded by various notebooks.
