@@ -644,7 +644,7 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     FAILED = False
 
-    QC_all = [np.nan, np.nan, np.nan] 
+    QC_all = [np.nan, np.nan, np.nan]
     QC_all[0] = 2 # flag to apply if shallow profile
     QC_all[1] = 3 # flag to apply if the result of the test is true
     QC_all[2] = 4 # flag to apply if there are data only within one size bin
@@ -679,12 +679,15 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
             # if there are consecutive bins from zero index
             # and if not all bins contain data
-            elif (np.all(test_bin == nonempty)) & (nonempty[-1] < len(bins)-1) & (np.nanmax(PRES) >= bins.max()): # with test ############################################################ may have to set bins.max()=990 instead of 1000
+            # and if max(PRES) greater than the pres in the deepest non-empty bin
+            # elif (np.all(test_bin == nonempty)) & (nonempty[-1] < len(bins)-1) & (np.nanmax(PRES) >= bins.max()): # with test ############################################################ may have to set bins.max()=990 instead of 1000
+            elif (np.all(test_bin == nonempty)) & (nonempty[-1] < len(bins) - 1) & (np.nanmax(PRES) >= bins[nonempty[-1]]): # with test
                 if VERBOSE: print("shallow profile due to missing data: QC=" + str(QC_all[1]))
                 QC = QC_all[1]
 
             # check if max(PRES)<maxPresbin to decide if this was a profile that was programmed to be shallow
-            elif (np.all(test_bin == nonempty)) & (nonempty[-1] < len(bins)-1) & (np.nanmax(PRES) < bins.max()):
+            # elif (np.all(test_bin == nonempty)) & (nonempty[-1] < len(bins)-1) & (np.nanmax(PRES) < bins.max()):
+            elif (np.all(test_bin == nonempty)) & (nonempty[-1] < len(bins)-1) & (np.nanmax(PRES) < bins[nonempty[-1]]):
                 if VERBOSE: print("shallow profile (maxPRES="+str(np.nanmax(PRES))+") dbars. Need more checks...")
 
                 # compute median value below 200 dbars to check for high-deep values
