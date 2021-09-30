@@ -313,7 +313,7 @@ def BBP_Surface_hook_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
             print('applying QC=' + str(QC) + '...')
             
     if (PLOT) & (FAILED):
-        plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
+        plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
                             fn, SAVEPLOT, VERBOSE)
         
     return QC_Flags, QC_1st_failed_test
@@ -765,7 +765,7 @@ def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, 
     
 
     if QC_TEST_CODE != "0":
-        ax1.plot(BBPmf1[ISBAD], PRES[ISBAD], 'o', ms=10, color='r', mfc='r', alpha=0.7)
+        ax1.plot(BBPmf1[ISBAD], PRES[ISBAD], 'o', ms=10, color='r', mfc='r', alpha=0.7, zorder=60)
         ax1.plot(BBP[innan], PRES[innan], 'o-', ms=3, color='k', mfc='none', alpha=0.7) # <<<<<<<<<<<<<<<<<<
 
     if QC_TEST_CODE != 'E':
