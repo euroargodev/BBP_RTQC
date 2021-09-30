@@ -34,7 +34,7 @@ The notebooks
 [`check_tests.ipynb`](https://github.com/euroargodev/BBP_RTQC/blob/main/check_tests.ipynb)
 and
 [`test_json.ipynb`](https://github.com/euroargodev/BBP_RTQC/blob/main/test_json.ipynb)
-are used to assert the tests and plot the example files, respctively.
+are used to assert the tests and plot the example files, respectively.
 
  
 
