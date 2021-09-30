@@ -12,18 +12,19 @@ The current version (30-Sep-2021) of the tests has not been presented to the com
 The code is written in Python3 or as Jupyter Notebooks.
 
 ## Test functions
-The function `BBP_RTQC.py` contains all the proposed tests, besides other functions that are needed to QC the data.
+`BBP_RTQC.py`: This sript contains all the proposed tests, besides other functions that are needed to QC the data. It is loaded as a module by various notebooks.
 
 ## Global variables
-`BBP_RTQC_global_vars.py`
+`BBP_RTQC_global_vars.py`: This script contains all global variables needed by the different notebooks. It is loaded by various notebooks.
 
-`BBP_RTQC_paths.py`
+`BBP_RTQC_paths.py`: This script contains the paths to the data, the workign directory, and the directories where the pickled results and the plots are stored. The paths currently stored here are mine, so you'll have to update these to the ones in your machine.
 
 ## How to run tests on GDAC profiles
-`run_BBP_RTQC.ipynb`
+`run_BBP_RTQC.ipynb`: This is the main notebook used to apply the BBP RTQC tests. After importing the main modules used, it asserts all tests, and creates a list of DAC/WMO to be processed. It then remove any existing pickled and plot files. Finally, it runs the tests on each float in parallel (using 7 core CPUs, i.e., `n_jobs`: you will need to update this argument based on your machine).
+There are also a number of commented cells that can be used run the tests sequentially, while being able to read the output (set `VERBOSE=True`), and to create a directory where all plots from a given test can be stored. 
 
 ## How to plot and synthesize results
-`bgc_argo_RTQC_plot_results.ipynb`
+`bgc_argo_RTQC_plot_results.ipynb`: This notebook is used to present a summary of the results of each test on the GDAC data. After reading all the pickled files, it extract statistics on each RTQC test 
 
 ## Asserting BBP RTQC tests
 `BBP_RTQC_example_tests.json`
