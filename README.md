@@ -16,6 +16,7 @@ The function `BBP_RTQC.py` contains all the proposed tests, besides other functi
 
 ## Global variables
 `BBP_RTQC_global_vars.py`
+
 `BBP_RTQC_paths.py`
 
 ## How to run tests on GDAC profiles
@@ -26,8 +27,11 @@ The function `BBP_RTQC.py` contains all the proposed tests, besides other functi
 
 ## Asserting BBP RTQC tests
 `BBP_RTQC_example_tests.json`
+
 `check_tests.ipynb`
+
 `test_json.ipynb`
+
 `prep_json.ipynb`
  
 
