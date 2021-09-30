@@ -9,6 +9,27 @@ A group of ADMT people interested in BBP had a post-ADMT21 meeting to discuss th
 The current version (30-Sep-2021) of the tests has not been presented to the community yet.
 
 # Code
+The code is written in Python3 or as Jupyter Notebooks.
+
+## Test functions
+The function `BBP_RTQC.py` contains all the proposed tests, besides other functions that are needed to QC the data.
+
+## Global variables
+`BBP_RTQC_global_vars.py`
+`BBP_RTQC_paths.py`
+
+## How to run tests on GDAC profiles
+`run_BBP_RTQC.ipynb`
+
+## How to plot and synthesize results
+`bgc_argo_RTQC_plot_results.ipynb`
+
+## Asserting BBP RTQC tests
+`BBP_RTQC_example_tests.json`
+`check_tests.ipynb`
+`test_json.ipynb`
+`prep_json.ipynb`
+ 
 
 
 
