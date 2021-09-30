@@ -19,26 +19,28 @@ The code is written in Python3 or as Jupyter Notebooks.
 
 [`BBP_RTQC_paths.py`](https://github.com/euroargodev/BBP_RTQC/blob/main/BBP_RTQC_paths.py): This script contains the paths to the data, the workign directory, and the directories where the pickled results and the plots are stored. The paths currently stored here are mine, so you'll have to update these to the ones in your machine.
 
-## How to run tests on GDAC profiles
-[`run_BBP_RTQC.ipynb`](https://github.com/euroargodev/BBP_RTQC/blob/main/run_BBP_RTQC.ipynb): This is the main notebook used to apply the BBP RTQC tests. After importing the main modules used, it asserts all tests, and creates a list of DAC/WMO to be processed. It then remove any existing pickled and plot files. Finally, it runs the tests on each float in parallel (using 7 core CPUs, i.e., `n_jobs`: you will need to update this argument based on your machine).
-There are also a number of commented cells that can be used run the tests sequentially, while being able to read the output (set `VERBOSE=True`), and to create a directory where all plots from a given test can be stored. 
+### How to run tests on GDAC profiles
+[`run_BBP_RTQC.ipynb`](https://github.com/euroargodev/BBP_RTQC/blob/main/run_BBP_RTQC.ipynb): This is the main notebook used to apply the BBP RTQC tests. After importing the main modules used, it asserts all tests, and creates a list of DAC/WMO to be processed. It then removes any existing pickled and plot files. Finally, it runs the tests on each float in parallel (using 7 core CPUs, i.e., `n_jobs`: you will need to update this argument based on your machine).
+There are also a number of commented cells that can be used to run the tests sequentially, while being able to read the output (set `VERBOSE=True`), and to create a directory where all plots from a given test can be stored. 
 
-## How to plot and synthesize results
-[`bgc_argo_RTQC_plot_results.ipynb`](https://github.com/euroargodev/BBP_RTQC/blob/main/bgc_argo_RTQC_plot_results.ipynb): This notebook is used to present a summary of the results of each test on the GDAC data. After reading all the pickled files, it extract statistics on each RTQC test 
+### How to plot and synthesize results
+[`bgc_argo_RTQC_plot_results.ipynb`](https://github.com/euroargodev/BBP_RTQC/blob/main/bgc_argo_RTQC_plot_results.ipynb): This notebook is used to present a summary of the results of each test on the GDAC data. After reading all the pickled files, it extracts statistics on each RTQC test, presents them in a tabular format and generates plots for each test.
 
-## Asserting BBP RTQC tests
-[`BBP_RTQC_example_tests.json`](https://github.com/euroargodev/BBP_RTQC/blob/main/BBP_RTQC_example_tests.json)
+### Asserting BBP RTQC tests
+To ensure reproducibility, a set of example inputs and expeted outputs is stored in the file [`BBP_RTQC_example_tests.json`](https://github.com/euroargodev/BBP_RTQC/blob/main/BBP_RTQC_example_tests.json).
+This file is generated using [`prep_json.ipynb`](https://github.com/euroargodev/BBP_RTQC/blob/main/prep_json.ipynb) and is based on a set of profiles that may not be available anymore in the future (e.g., when R files become D files).
 
+The notebooks 
 [`check_tests.ipynb`](https://github.com/euroargodev/BBP_RTQC/blob/main/check_tests.ipynb)
-
+and
 [`test_json.ipynb`](https://github.com/euroargodev/BBP_RTQC/blob/main/test_json.ipynb)
+are used to assert the tests and plot the example files, respctively.
 
-[`prep_json.ipynb`](https://github.com/euroargodev/BBP_RTQC/blob/main/prep_json.ipynb)
  
 
 
 
 
 # TO-DO LIST
-- Rewrite README.md file to describe current status of repo 
+- Complete rewriting of README.md file to describe current status of repo
 - Add Animal-Spike test 
