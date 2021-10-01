@@ -21,7 +21,7 @@ D_ISURF = 5 # [dbars] pressure threshold above which to check for negative value
 # Parking hook
 G_DELTAPRES1 = 50 # [dbars] difference in PRES from parking pressure over which the test is implemented
 G_DELTAPRES2 = 20 # [dbars] difference in PRES from parking pressure use to compute test baseline
-G_STDFACTOR = 3 # factor that multiplies the standard deviation to set the baseline
+G_DEV = 0.0002 # [1/m] deviation from baseline that identifies anomalous data points
 
 # Noisy profile
 # B_RES_THRESHOLD = 0.001 # [1/m] threshold for relative residuals

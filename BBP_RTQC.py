@@ -385,9 +385,7 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
 
     # compute parameters to define baseline above which test fails
     medBBP = np.nanmedian(BBP[iPRESmed])
-    stdBBP = np.nanstd(BBP[iPRESmed])
-#     stdBBP = (np.nanpercentile(BBPmf1[iPRESmed], 84) - np.nanpercentile(BBPmf1[iPRESmed], 16))/2.
-    baseline = medBBP + G_STDFACTOR*stdBBP
+    baseline = medBBP + G_DEV
 
     # this is the test
     ibad = np.where( BBP[iPREStest] > baseline )[0]
