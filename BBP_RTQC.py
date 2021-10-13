@@ -38,6 +38,7 @@ def test_tests(ia):
 
     # find index of code
     code = a[ia]['code']
+    print(str(ia) , " ", code)
 
     # create BBP700 array
     BBP = np.asarray(a[ia]['input']['BBP'])
@@ -98,7 +99,6 @@ def test_tests(ia):
                                                                                 'test_tests')
     elif code == 'G':
         #### Parking Hook
-
         QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES,
                                                                         np.ones(BBP.shape),
                                                                         BBP_QC_failed_test,
@@ -837,9 +837,9 @@ def rd_WMOmeta(iwmo, VERBOSE):
         SENSOR_MODEL = 'no metadata'
         SENSOR_MAKER = 'no metadata'
         SENSOR_SERIAL_NO = 'no metadata'
-        SCALE_BACKSCATTERING700 = np.nan
-        DARK_BACKSCATTERING700 = np.nan
-        KHI_BACKSCATTERING700 = np.nan
+        SCALE_BACKSCATTERING700 = 126
+        DARK_BACKSCATTERING700 = 126
+        KHI_BACKSCATTERING700 = 126
     else:    
         iBBPsensor = np.where(ds_config.SENSOR.astype('str').str.contains('BACKSCATTERINGMETER_BBP700'))[0][0] # find index of BBP meter
         SENSOR_MODEL = ds_config.SENSOR_MODEL[iBBPsensor].astype('str').values
@@ -848,6 +848,7 @@ def rd_WMOmeta(iwmo, VERBOSE):
 
         # read PRE-DEPLOYMENT calibration coefficients
         if re.search("BACKSCATTERING700", str(ds_config.PREDEPLOYMENT_CALIB_COEFFICIENT.astype('str').values)): # check that CAL COEFFS are stored
+            ipdb.set_trace()
             iBBP700cal = np.where(ds_config.PREDEPLOYMENT_CALIB_COEFFICIENT.astype('str').str.contains('BACKSCATTERING700'))[0][0]
             calcoeff_string = ds_config.PREDEPLOYMENT_CALIB_COEFFICIENT[iBBP700cal].astype('str').values
             calcoeff_string = np.char.strip(calcoeff_string).item()
@@ -859,18 +860,21 @@ def rd_WMOmeta(iwmo, VERBOSE):
                 delim = ","
             else:
                 print("delimiter not found")
-                ipdb.set_trace()
 
-            DARK_BACKSCATTERING700 = float(calcoeff_string.split(delim)[0].split("=")[-1])
-            SCALE_BACKSCATTERING700 = float(calcoeff_string.split(delim)[1].split("=")[-1])
-            KHI_BACKSCATTERING700 = float(calcoeff_string.split(delim)[2].split("=")[-1])
+            for text in calcoeff_string.split(delim):
+                if "DARK_BACKSCATTERING700" in text:
+                    DARK_BACKSCATTERING700 = float(text.split("=")[-1])
+                elif "khi" in text:
+                    KHI_BACKSCATTERING700 = float(text.split("=")[-1])
+                elif "SCALE_BACKSCATTERING700" in text:
+                    SCALE_BACKSCATTERING700 = float(text.split("=")[-1])
 
         else:
             if VERBOSE:
                 print("no calibration coefficients found")
-            SCALE_BACKSCATTERING700 = np.nan
-            DARK_BACKSCATTERING700 = np.nan
-            KHI_BACKSCATTERING700 = np.nan
+            SCALE_BACKSCATTERING700 = 125 # different flag from above to differentiate them
+            DARK_BACKSCATTERING700 = 125
+            KHI_BACKSCATTERING700 = 125
 
     if ds_config.PLATFORM_TYPE.values:
         PLATFORM_TYPE = str(ds_config.PLATFORM_TYPE.values.astype(str))
