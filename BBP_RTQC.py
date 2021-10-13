@@ -848,7 +848,6 @@ def rd_WMOmeta(iwmo, VERBOSE):
 
         # read PRE-DEPLOYMENT calibration coefficients
         if re.search("BACKSCATTERING700", str(ds_config.PREDEPLOYMENT_CALIB_COEFFICIENT.astype('str').values)): # check that CAL COEFFS are stored
-            ipdb.set_trace()
             iBBP700cal = np.where(ds_config.PREDEPLOYMENT_CALIB_COEFFICIENT.astype('str').str.contains('BACKSCATTERING700'))[0][0]
             calcoeff_string = ds_config.PREDEPLOYMENT_CALIB_COEFFICIENT[iBBP700cal].astype('str').values
             calcoeff_string = np.char.strip(calcoeff_string).item()
