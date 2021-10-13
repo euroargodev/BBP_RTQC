@@ -15,6 +15,7 @@ from BBP_RTQC_global_vars import *
 from BBP_RTQC_paths import *
 
 import json
+import re
 
 warnings.filterwarnings('ignore')
 
@@ -830,16 +831,15 @@ def rd_WMOmeta(iwmo, VERBOSE):
 
 
     ## extract info on SENSOR
-    # if not np.all(ds_config.SENSOR.astype('str').str.contains('BACKSCATTERINGMETER_BBP700')):
     if not np.any(ds_config.SENSOR.astype('str').str.contains('BACKSCATTERINGMETER_BBP700')):
         if VERBOSE:
             print("----this float does not have SENSOR metadata")
         SENSOR_MODEL = 'no metadata'
         SENSOR_MAKER = 'no metadata'
         SENSOR_SERIAL_NO = 'no metadata'
-        SCALE_BACKSCATTERING700 = 'no metadata'
-        DARK_BACKSCATTERING700 = 'no metadata'
-        KHI_BACKSCATTERING700 = 'no metadata'
+        SCALE_BACKSCATTERING700 = np.nan
+        DARK_BACKSCATTERING700 = np.nan
+        KHI_BACKSCATTERING700 = np.nan
     else:    
         iBBPsensor = np.where(ds_config.SENSOR.astype('str').str.contains('BACKSCATTERINGMETER_BBP700'))[0][0] # find index of BBP meter
         SENSOR_MODEL = ds_config.SENSOR_MODEL[iBBPsensor].astype('str').values
@@ -847,12 +847,30 @@ def rd_WMOmeta(iwmo, VERBOSE):
         SENSOR_SERIAL_NO = ds_config.SENSOR_SERIAL_NO[iBBPsensor].astype('str').values
 
         # read PRE-DEPLOYMENT calibration coefficients
-        iBBP700cal = np.where(ds_config.PREDEPLOYMENT_CALIB_COEFFICIENT.astype('str').str.contains('BACKSCATTERING700'))[0][0]
-        calcoeff_string = ds_config.PREDEPLOYMENT_CALIB_COEFFICIENT[iBBP700cal].astype('str').values
-        calcoeff_string = np.char.strip(calcoeff_string).item()
-        DARK_BACKSCATTERING700 = float(calcoeff_string.split(",")[0].split("=")[-1])
-        SCALE_BACKSCATTERING700 = float(calcoeff_string.split(",")[1].split("=")[-1])
-        KHI_BACKSCATTERING700 = float(calcoeff_string.split(",")[2].split("=")[-1])
+        if re.search("BACKSCATTERING700", str(ds_config.PREDEPLOYMENT_CALIB_COEFFICIENT.astype('str').values)): # check that CAL COEFFS are stored
+            iBBP700cal = np.where(ds_config.PREDEPLOYMENT_CALIB_COEFFICIENT.astype('str').str.contains('BACKSCATTERING700'))[0][0]
+            calcoeff_string = ds_config.PREDEPLOYMENT_CALIB_COEFFICIENT[iBBP700cal].astype('str').values
+            calcoeff_string = np.char.strip(calcoeff_string).item()
+
+            # check what delimiter was used
+            if re.search(";", calcoeff_string):
+                delim = ";"
+            elif re.search(",", calcoeff_string):
+                delim = ","
+            else:
+                print("delimiter not found")
+                ipdb.set_trace()
+
+            DARK_BACKSCATTERING700 = float(calcoeff_string.split(delim)[0].split("=")[-1])
+            SCALE_BACKSCATTERING700 = float(calcoeff_string.split(delim)[1].split("=")[-1])
+            KHI_BACKSCATTERING700 = float(calcoeff_string.split(delim)[2].split("=")[-1])
+
+        else:
+            if VERBOSE:
+                print("no calibration coefficients found")
+            SCALE_BACKSCATTERING700 = np.nan
+            DARK_BACKSCATTERING700 = np.nan
+            KHI_BACKSCATTERING700 = np.nan
 
     if ds_config.PLATFORM_TYPE.values:
         PLATFORM_TYPE = str(ds_config.PLATFORM_TYPE.values.astype(str))
@@ -968,8 +986,8 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
         return
 
     # read meta file
-    [ds_config, SENSOR_MODEL, SENSOR_MAKER, SENSOR_SERIAL_NO, PLATFORM_TYPE, miss_no_float
-     DARK_BACKSCATTERING700, SCALE_BACKSCATTERING700, KHI_BACKSCATTERING700] = rd_WMOmeta(iwmo, VERBOSE)
+    [ds_config, SENSOR_MODEL, SENSOR_MAKER, SENSOR_SERIAL_NO, PLATFORM_TYPE,
+     miss_no_float, DARK_BACKSCATTERING700, SCALE_BACKSCATTERING700, KHI_BACKSCATTERING700] = rd_WMOmeta(iwmo, VERBOSE)
     
     # list single profiles
     fn2glob = MAIN_DIR + "dac/" + iwmo + "/profiles/" + "B*" + iwmo.split("/")[-1] + "*_[0-9][0-9][0-9].nc"
