@@ -837,12 +837,23 @@ def rd_WMOmeta(iwmo, VERBOSE):
         SENSOR_MODEL = 'no metadata'
         SENSOR_MAKER = 'no metadata'
         SENSOR_SERIAL_NO = 'no metadata'
+        SCALE_BACKSCATTERING700 = 'no metadata'
+        DARK_BACKSCATTERING700 = 'no metadata'
+        KHI_BACKSCATTERING700 = 'no metadata'
     else:    
         iBBPsensor = np.where(ds_config.SENSOR.astype('str').str.contains('BACKSCATTERINGMETER_BBP700'))[0][0] # find index of BBP meter
         SENSOR_MODEL = ds_config.SENSOR_MODEL[iBBPsensor].astype('str').values
         SENSOR_MAKER = ds_config.SENSOR_MAKER[iBBPsensor].astype('str').values
         SENSOR_SERIAL_NO = ds_config.SENSOR_SERIAL_NO[iBBPsensor].astype('str').values
-    
+
+        # read PRE-DEPLOYMENT calibration coefficients
+        iBBP700cal = np.where(ds_config.PREDEPLOYMENT_CALIB_COEFFICIENT.astype('str').str.contains('BACKSCATTERING700'))[0][0]
+        calcoeff_string = ds_config.PREDEPLOYMENT_CALIB_COEFFICIENT[iBBP700cal].astype('str').values
+        calcoeff_string = np.char.strip(calcoeff_string).item()
+        DARK_BACKSCATTERING700 = float(calcoeff_string.split(",")[0].split("=")[-1])
+        SCALE_BACKSCATTERING700 = float(calcoeff_string.split(",")[1].split("=")[-1])
+        KHI_BACKSCATTERING700 = float(calcoeff_string.split(",")[2].split("=")[-1])
+
     if ds_config.PLATFORM_TYPE.values:
         PLATFORM_TYPE = str(ds_config.PLATFORM_TYPE.values.astype(str))
     else:
@@ -853,7 +864,8 @@ def rd_WMOmeta(iwmo, VERBOSE):
     # extract CONFIG_MISSION_NUMBER from meta file
     miss_no_float = ds_config.CONFIG_MISSION_NUMBER.values
     
-    return ds_config, SENSOR_MODEL, SENSOR_MAKER, SENSOR_SERIAL_NO, PLATFORM_TYPE, miss_no_float
+    return ds_config, SENSOR_MODEL, SENSOR_MAKER, SENSOR_SERIAL_NO, PLATFORM_TYPE, miss_no_float, \
+           DARK_BACKSCATTERING700, SCALE_BACKSCATTERING700, KHI_BACKSCATTERING700
 
 
 # read BBP and PRES
@@ -956,7 +968,8 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
         return
 
     # read meta file
-    [ds_config, SENSOR_MODEL, SENSOR_MAKER, SENSOR_SERIAL_NO, PLATFORM_TYPE, miss_no_float] = rd_WMOmeta(iwmo, VERBOSE)
+    [ds_config, SENSOR_MODEL, SENSOR_MAKER, SENSOR_SERIAL_NO, PLATFORM_TYPE, miss_no_float
+     DARK_BACKSCATTERING700, SCALE_BACKSCATTERING700, KHI_BACKSCATTERING700] = rd_WMOmeta(iwmo, VERBOSE)
     
     # list single profiles
     fn2glob = MAIN_DIR + "dac/" + iwmo + "/profiles/" + "B*" + iwmo.split("/")[-1] + "*_[0-9][0-9][0-9].nc"
@@ -1063,7 +1076,10 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
                        'SENSOR_MAKER':SENSOR_MAKER, 
                        'SENSOR_SERIAL_NO':SENSOR_SERIAL_NO, 
                        'PLATFORM_TYPE':PLATFORM_TYPE,
-                       'iWMO': iwmo
+                       'iWMO': iwmo,
+                       'DARK_BACKSCATTERING700' : DARK_BACKSCATTERING700,
+                       'SCALE_BACKSCATTERING700' : SCALE_BACKSCATTERING700,
+                       'KHI_BACKSCATTERING700' : KHI_BACKSCATTERING700
                         }])
 
     if SAVEPKL:
