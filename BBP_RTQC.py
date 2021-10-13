@@ -830,7 +830,8 @@ def rd_WMOmeta(iwmo, VERBOSE):
 
 
     ## extract info on SENSOR
-    if not np.all(ds_config.SENSOR.astype('str').str.contains('BACKSCATTERINGMETER_BBP700')):
+    # if not np.all(ds_config.SENSOR.astype('str').str.contains('BACKSCATTERINGMETER_BBP700')):
+    if not np.any(ds_config.SENSOR.astype('str').str.contains('BACKSCATTERINGMETER_BBP700')):
         if VERBOSE:
             print("----this float does not have SENSOR metadata")
         SENSOR_MODEL = 'no metadata'
