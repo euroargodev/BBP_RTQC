@@ -6,7 +6,8 @@ tests = {"A": "Global Range",
          "D": "Surface Hook", 
          "E": "Missing Data",
          "F": "Negative non-surface",
-         "G": "Parking Hook"      
+         "G": "Parking Hook",      
+         "H": "Stuck Value"
         }
 
 
