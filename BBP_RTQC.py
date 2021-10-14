@@ -1128,9 +1128,11 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
         # NEGATIVE NON-SURFACE TEST
         BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Negative_nonsurface_test(BBP700, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
 
-        
+        # STUCK-VALUE TEST
+        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Stuck_Value_test(BBP700, PRES, BBP700_QC_flags,
+                                                                                 BBP700_QC_1st_failed_test, fn_p, PLOT,
+                                                                                 SAVEPLOT, VERBOSE)
 
-        
         # create dictionary with results
         prof = {}
         prof["BBP700_QC_1st_failed_test"] = dict.fromkeys(tests.keys())
