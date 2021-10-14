@@ -603,6 +603,62 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
     return QC_Flags, QC_1st_failed_test
 
+##################################################################
+##################################################################
+def BBP_Stuck_Value_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
+                              fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
+    # BBP: nparray with all BBP data
+    # QC_Flags: array with QC flags
+    # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
+    # fn: name of corresponding B-file
+    #
+    # WHAT IS DONE: When the test fails, all points in the profile are flagged (QC=3)
+
+    # ### BBP STUCK-VALUE TEST  (test order code "H")
+    # <br>
+    # #### Objective:
+    # To detect and flag profiles of BBP that have a constant value. Could indicate sensor failure or cap forgotten on BBP meter at time of deployment.
+    # <br><br>
+    # #### What is done:
+    # Check if all values are equal
+    #
+    # Flag entire profile.
+    # <br><br>
+    # #### QC flag if test fails
+    # 3
+    # <br>
+    # <br>
+    # EXAMPLE:
+    # __________________________________________________________________________________________
+
+    FAILED = False
+
+    QC = 3; # flag to apply if the result of the test is true
+    QC_TEST_CODE = 'H'
+    ISBAD = np.zeros(len(BBPmf1), dtype=bool) # initialise flags
+
+    # this is the test
+    if (np.all(BBP) == BBP[0])):
+        ISBAD = np.ones(len(BBP), dtype=bool)
+
+    if np.any(ISBAD==1): # if ISBAD, then apply QC_flag=3
+        FAILED = True
+
+        QC_Flags[ISBAD] = QC
+        QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
+
+        if VERBOSE:
+            print('Failed Stuck-Vallue test')
+            print('applying QC=' + str(QC) + '...')
+
+    if (PLOT) & (FAILED):
+                plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE],
+                                    QC_TEST_CODE, fn, SAVEPLOT, VERBOSE)
+
+
+
+    return QC_Flags, QC_1st_failed_test
+
 
 ##################################################################
 ##################################################################
@@ -738,6 +794,7 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
                                     QC_TEST_CODE, fn, SAVEPLOT, VERBOSE)
 
     return QC_Flags, QC_1st_failed_test
+
 
 
 ##################################################################
