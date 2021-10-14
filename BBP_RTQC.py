@@ -103,6 +103,12 @@ def test_tests(ia):
                                                                         np.ones(BBP.shape),
                                                                         BBP_QC_failed_test,
                                                                         'test_tests')
+    elif code == 'H':
+        #### Stuck value
+        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Stuck_Value_test(BBP, PRES,
+                                                                    np.ones(BBP.shape),
+                                                                    BBP_QC_failed_test,
+                                                                    'test_tests')
 
     assert np.all(QC_FLAGS_OUT == a[ia]['output']['flags_out']) and myfunc(tests[code] + ' / ' + a[ia]['specifics'] + ': test succeded.'), 'Assertion error for ' + tests[code]
 
@@ -633,7 +639,7 @@ def BBP_Stuck_Value_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     FAILED = False
 
-    QC = 3; # flag to apply if the result of the test is true
+    QC = 3 # flag to apply if the result of the test is true
     QC_TEST_CODE = 'H'
     ISBAD = np.zeros(len(BBP), dtype=bool) # initialise flags
 
@@ -1036,7 +1042,8 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
     #          "D": "Surface Hook",
     #          "E": "Missing Data",
     #          "F": "Negative non-surface",
-    #          "G": "Parking Hook"
+    #          "G": "Parking Hook",
+    #          "H": "Stuck Value"
     #          }
 
     print(iwmo)
