@@ -1796,7 +1796,7 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
         ISBAD = np.zeros(len(BBPmf1), dtype=bool)  # initialise flags
 
         # this is the test
-        if (np.all(BBP) == BBP[0])):
+        if (np.all(BBP) == BBP[0]):
             ISBAD = np.ones(len(BBP), dtype=bool)
 
         if np.any(ISBAD == 1):  # if ISBAD, then apply QC_flag=3
