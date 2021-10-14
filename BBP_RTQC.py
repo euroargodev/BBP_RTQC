@@ -635,7 +635,7 @@ def BBP_Stuck_Value_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     QC = 3; # flag to apply if the result of the test is true
     QC_TEST_CODE = 'H'
-    ISBAD = np.zeros(len(BBPmf1), dtype=bool) # initialise flags
+    ISBAD = np.zeros(len(BBP), dtype=bool) # initialise flags
 
     # this is the test
     if (np.all(BBP) == BBP[0]):
