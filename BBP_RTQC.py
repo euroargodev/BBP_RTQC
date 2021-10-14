@@ -648,7 +648,7 @@ def BBP_Stuck_Value_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
         QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
 
         if VERBOSE:
-            print('Failed Stuck-Vallue test')
+            print('Failed Stuck-Value test')
             print('applying QC=' + str(QC) + '...')
 
     if (PLOT) & (FAILED):
