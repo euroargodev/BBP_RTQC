@@ -645,7 +645,7 @@ def BBP_Stuck_Value_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     # this is the test
     innan = np.where(~np.isnan(BBP))[0]
-    if (np.all(BBP[innan] == BBP[innan][0])): # check if all profile has the same value
+    if (np.all(BBP[innan] == BBP[innan][0])) & (len(BBP[innan])>1): # check if all profile has the same value and if there is more than one value in the profile
         ISBAD = np.ones(len(BBP), dtype=bool) # flag entire profile
 
     if np.any(ISBAD==1): # if ISBAD, then apply QC_flag=3
