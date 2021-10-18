@@ -43,4 +43,4 @@ ere used respectively to assert the tests and plot the example files inputs and 
 
 # TO-DO LIST
 - Add Animal-Spike test
-- Add non-medfilt hight BBP test? 
+- Add non-medfilt high BBP test? 
