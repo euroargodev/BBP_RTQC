@@ -42,11 +42,14 @@ def test_tests(ia):
 
     # create BBP700 array
     BBP = np.asarray(a[ia]['input']['BBP'])
-    BBPmf1 = np.asarray(a[ia]['input']['BBPmf1'])
+    if code != 'H':
+        BBPmf1 = np.asarray(a[ia]['input']['BBPmf1'])
     PRES = np.asarray(a[ia]['input']['PRES'])
     if code == 'G':
         maxPRES = np.asarray(a[ia]['input']['maxPRES'])
         PARK_PRES = np.asarray(a[ia]['input']['PARK_PRES'])
+    if code == 'H':
+        COUNTS = np.asarray(a[ia]['input']['COUNTS'])
 
     # initialise BBP700_QC_1st_failed_test
     BBP_QC_failed_test = ini_flags(BBP)
