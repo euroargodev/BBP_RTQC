@@ -747,6 +747,7 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
     if ISBAD == 1: # if ISBAD, then apply QC_flag
         FAILED = True
         QC_1st_failed_test[QC_TEST_CODE] = QC_TEST_CODE
+        QC_Flags[:] = QC
 
         if VERBOSE:
             print('Failed Missing_Data_test')
