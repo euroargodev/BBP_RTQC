@@ -9,6 +9,8 @@ A group of interested people met after ADMT21 to discuss the proposed tests furt
 The current version (30-Sep-2021) of the tests has not been presented to the community yet.
 
 # Set up and installation
+To work with these examples you first need to clone this repository (e.g., click [`here`](https://github.com/euroargodev/BBP_RTQC/archive/refs/heads/main.zip).
+
 The file `environment.yml` allows you to recreate the `conda` environment needed for the notebooks to work. If you do not have `conda` installed, follow the instructions here: https://docs.conda.io/projects/conda/en/latest/user-guide/install/.
 
 To create the `BBP_RTQC` environment use the command `conda env create -f environment.yml`. Then the newly created conda environment needs to be activated using `conda activate BBP_RTQC`.
