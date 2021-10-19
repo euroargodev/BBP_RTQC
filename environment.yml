@@ -193,7 +193,6 @@ dependencies:
   - conda-forge/linux-64::requests==2.22.0=py37_1
   - conda-forge/noarch::ipdb==0.12.3=py_0
   - conda-forge/linux-64::ipykernel==5.2.0=py37h43977f1_1
-  - conda-forge/noarch::owslib==0.19.0=py_1
   - conda-forge/noarch::pyepsg==0.4.0=py_0
   - conda-forge/linux-64::ipyparallel==6.2.4=py37hc8dfbb8_0
   - conda-forge/linux-64::notebook==6.1.5=py37h89c1867_0
