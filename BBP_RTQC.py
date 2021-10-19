@@ -611,9 +611,9 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
 ##################################################################
 ##################################################################
-def BBP_Stuck_Value_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
+def BBP_Stuck_Value_test(COUNTS, BBP, PRES, QC_Flags, QC_1st_failed_test,
                               fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
-    # BBP: nparray with all BBP data
+    # COUNTS: np.array with all COUNTS
     # QC_Flags: array with QC flags
     # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
     # fn: name of corresponding B-file
@@ -641,12 +641,12 @@ def BBP_Stuck_Value_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     QC = 3 # flag to apply if the result of the test is true
     QC_TEST_CODE = 'H'
-    ISBAD = np.zeros(len(BBP), dtype=bool) # initialise flags
+    ISBAD = np.zeros(len(COUNTS), dtype=bool) # initialise flags
 
     # this is the test
-    innan = np.where(~np.isnan(BBP))[0]
-    if (np.all(BBP[innan] == BBP[innan][0])) & (len(BBP[innan])>1): # check if all profile has the same value and if there is more than one value in the profile
-        ISBAD = np.ones(len(BBP), dtype=bool) # flag entire profile
+    innan = np.where(~np.isnan(COUNTS))[0]
+    if (np.all(COUNTS[innan] == COUNTS[innan][0])) & (len(COUNTS[innan])>1): # check if all profile has the same value and if there is more than one value in the profile
+        ISBAD = np.ones(len(COUNTS), dtype=bool) # flag entire profile
 
     if np.any(ISBAD==1): # if ISBAD, then apply QC_flag=3
         FAILED = True
@@ -962,8 +962,8 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
         if VERBOSE: print('no BBP700 for this cycle')
         ds.close()
         # set returned values to flag
-        PRES = BBP700 = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
-        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan
+        PRES = BBP700 = COUNTS = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
+        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan, COUNTS
         
 
 
@@ -975,10 +975,10 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
     else:
         if VERBOSE: print("this profile has less than 5 data points: skipping ")
         # set returned values to flag
-        PRES = BBP700 = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
-        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan
+        PRES = BBP700 = COUNTS = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
+        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan, COUNTS
 
-
+    COUNTS = ds.BETA_BACKSCATTERING700[N_PROF].values
     BBP700 = ds.BBP700[N_PROF].values
     PRES = ds.PRES[N_PROF].values
     JULD = ds.JULD[N_PROF].values
@@ -1029,7 +1029,7 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
     ds.close()
 
 
-    return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan
+    return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan, COUNTS
 
 
 # function to apply tests and plot results (needed in function form for parallel processing)
@@ -1097,7 +1097,7 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
             print(fn_p)
 
         # read BBP and PRES + other data from profile file
-        [ PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan] = rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE)
+        [ PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan, COUNTS] = rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE)
         if np.any(PRES==-12345678):
             continue
 
@@ -1136,7 +1136,7 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
         BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Negative_nonsurface_test(BBP700, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
 
         # STUCK-VALUE TEST
-        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Stuck_Value_test(BBP700, PRES, BBP700_QC_flags,
+        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Stuck_Value_test(COUNTS, BBP700, PRES, BBP700_QC_flags,
                                                                                  BBP700_QC_1st_failed_test, fn_p, PLOT,
                                                                                  SAVEPLOT, VERBOSE)
 
