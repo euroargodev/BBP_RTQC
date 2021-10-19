@@ -105,7 +105,7 @@ def test_tests(ia):
                                                                         'test_tests')
     elif code == 'H':
         #### Stuck value
-        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Stuck_Value_test(BBP, PRES,
+        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Stuck_Value_test(COUNTS, BBP, PRES,
                                                                     np.ones(BBP.shape),
                                                                     BBP_QC_failed_test,
                                                                     'test_tests')
@@ -639,7 +639,7 @@ def BBP_Stuck_Value_test(COUNTS, BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     FAILED = False
 
-    QC = 3 # flag to apply if the result of the test is true
+    QC = 4 # flag to apply if the result of the test is true
     QC_TEST_CODE = 'H'
     ISBAD = np.zeros(len(COUNTS), dtype=bool) # initialise flags
 
