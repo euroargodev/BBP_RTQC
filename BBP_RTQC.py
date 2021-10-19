@@ -732,21 +732,21 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
         if nonempty.size != 0:
             # if there is only one bin with data then
             if len(np.nonzero(bin_counts>MIN_N_PERBIN)[0])==1:  # with test
-                if VERBOSE: print("data only in one bin: QC=" + str(QC_all[2]))
+                if VERBOSE: print("data only in one bin: QC=" + str(QC_all[1]))
                 QC = QC_all[1]
 
             # if missing data in the profile
             else:
-                if VERBOSE: print("missing data in some bins: QC=" + str(QC_all[1])) # with test
+                if VERBOSE: print("missing data in some bins: QC=" + str(QC_all[0])) # with test
                 QC = QC_all[0]
 
         else: # this is for when we have no data at all, then
-            if VERBOSE: print("no data at all: QC=" + str(QC_all[2])) # with test
+            if VERBOSE: print("no data at all: QC=" + str(QC_all[1])) # with test
             QC = QC_all[1]
 
     if ISBAD == 1: # if ISBAD, then apply QC_flag
         FAILED = True
-        QC_1st_failed_test[QC_TEST_CODE] = QC_TEST_CODE
+        QC_1st_failed_test[QC_TEST_CODE][:] = QC_TEST_CODE
         QC_Flags[:] = QC
 
         if VERBOSE:
