@@ -669,7 +669,6 @@ def BBP_Stuck_Value_test(COUNTS, BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     return QC_Flags, QC_1st_failed_test
 
-
 ##################################################################
 ##################################################################
 def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
@@ -679,7 +678,7 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
     # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
     # fn: name of corresponding B-file
     #
-    # WHAT IS DONE: When the test fails, all points in the profile are flagged (QC=2)
+    # WHAT IS DONE: When the test fails, all points in the profile are flagged (QC=3 or QC=4 if data only in one bin)
 
     # ### BBP MISSING-DATA TEST  (test order code "E")
     # <br>
@@ -693,9 +692,6 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
     # Flag entire profile.
     # <br><br>
     # #### QC flag if test fails
-    # 2 if shallow profile with BBP(PRES>200dbars)<=E_DEEP_BBP700_THRESH<br>
-    # 3 if shallow profile with BBP(PRES>200dbars)>E_DEEP_BBP700_THRESH<br>
-    # 3 if shallow profile with maxPRES<200 dbars<br>
     # 3 if data are available in less than 10 bins in the upper 1000 dbars<br>
     # 4 if only data within only one bin in the upper 1000 dbars
     # <br>
@@ -709,10 +705,9 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     FAILED = False
 
-    QC_all = [np.nan, np.nan, np.nan]
-    QC_all[0] = 2 # flag to apply if shallow profile
-    QC_all[1] = 3 # flag to apply if the result of the test is true
-    QC_all[2] = 4 # flag to apply if there are data only within one size bin
+    QC_all = [np.nan, np.nan]
+    QC_all[0] = 3 # flag to apply if shallow profile
+    QC_all[1] = 4 # flag to apply if the result of the test is true
 
     QC_TEST_CODE = 'E'
     MIN_N_PERBIN = 1 # minimum number of points in each bin
@@ -735,65 +730,23 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
         nonempty = np.where(bin_counts>0)[0] # index of bins that contain data points
 
         if nonempty.size != 0:
-            test_bin = np.linspace(0, nonempty[-1], nonempty[-1]+1) # create array with consecutive indices from 0 to the last non-empty element of nonempty
-
             # if there is only one bin with data then
             if len(np.nonzero(bin_counts>MIN_N_PERBIN)[0])==1:  # with test
                 if VERBOSE: print("data only in one bin: QC=" + str(QC_all[2]))
-                QC = QC_all[2]
-
-            # if there are consecutive bins from zero index
-            # and if not all bins contain data
-            # and if max(PRES) is greater than the PRES in the deepest non-empty bin
-            elif (np.all(test_bin == nonempty)) & (nonempty[-1] < len(bins) - 1) & (np.nanmax(PRES) >= bins[nonempty[-1]]): # with test
-                if VERBOSE: print("shallow profile due to missing data: QC=" + str(QC_all[1]))
                 QC = QC_all[1]
 
-            # check if max(PRES)<maxPresbin to decide if this was a profile that was programmed to be shallow
-            elif (np.all(test_bin == nonempty)) & (nonempty[-1] < len(bins)-1) & (np.nanmax(PRES) < bins[nonempty[-1]]):
-                if VERBOSE: print("shallow profile (maxPRES="+str(np.nanmax(PRES))+") dbars. Need more checks...")
-
-                # compute median value below 200 dbars to check for high-deep values
-                iGT200 = np.where(PRES > E_PRESTHRESH)[0]
-
-                if not iGT200.any(): # with test    # if there are no data deeper than 200 dbars, then set QC=3 without checking what the values are
-                    if VERBOSE: print("----profile with PRES shallower than 200 dbars: QC=" + str(QC_all[1]))
-                    QC = QC_all[1]
-
-                else:
-                    # compute median BBP value below 200 dbars
-                    medBBPGT200 = np.nanmedian(BBP[iGT200])
-
-                    # if there are no non-NaN BBP values
-                    if (not medBBPGT200) | np.isnan(medBBPGT200): # with test
-                        if VERBOSE: print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars) no BBP data below 200 dbars) : QC=" + str(QC_all[1]))
-                        QC = QC_all[1]
-
-                    elif medBBPGT200 < E_DEEP_BBP700_THRESH:  # with test
-                    # set ISBAD so that the test does not fail when it's a shallow profile without high-deep values
-                        if VERBOSE: print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars)) : QC=" + str(QC_all[0]))
-                        ISBAD = 0
-                        QC = QC_all[0]
-
-                    elif medBBPGT200 >= E_DEEP_BBP700_THRESH: # with test
-                        if VERBOSE: print("----shallow profile (maxPRES="+str(np.nanmax(PRES))+" dbars) with high deep values (medBBPGT200=" + str(medBBPGT200) + "): QC=" + str(QC_all[1]))
-                        QC = QC_all[1]
-
-
-            # if missing data in the profile, but not cosecutively from bottom, then
+            # if missing data in the profile
             else:
-                if VERBOSE: print("data in some bins missing: QC=" + str(QC_all[1])) # with test
-                QC = QC_all[1]
+                if VERBOSE: print("missing data in some bins: QC=" + str(QC_all[1])) # with test
+                QC = QC_all[0]
 
         else: # this is for when we have no data at all, then
             if VERBOSE: print("no data at all: QC=" + str(QC_all[2])) # with test
-            QC = QC_all[2]
+            QC = QC_all[1]
 
     if ISBAD == 1: # if ISBAD, then apply QC_flag
         FAILED = True
-        i2flag = np.where(QC_Flags < QC)[0]
-        QC_Flags[i2flag] = QC
-        QC_1st_failed_test[QC_TEST_CODE][i2flag] = QC_TEST_CODE
+        QC_1st_failed_test[QC_TEST_CODE] = QC_TEST_CODE
 
         if VERBOSE:
             print('Failed Missing_Data_test')
@@ -804,7 +757,6 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
                                     QC_TEST_CODE, fn, SAVEPLOT, VERBOSE)
 
     return QC_Flags, QC_1st_failed_test
-
 
 ##################################################################
 ##################################################################
