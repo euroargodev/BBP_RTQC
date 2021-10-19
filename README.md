@@ -9,7 +9,7 @@ A group of interested people met after ADMT21 to discuss the proposed tests furt
 The current version (30-Sep-2021) of the tests has not been presented to the community yet.
 
 # Set up and installation
-To work with these examples you first need to clone this repository (e.g., click [`here`](https://github.com/euroargodev/BBP_RTQC/archive/refs/heads/main.zip)). Unzip the file `main.zip` and you will obtain a directory called `BBP_RTQC-main`. Enter `BBP_RTQC-main` and you will find the scripts and configuration files needed.
+To work with these examples you first need to clone this repository (i.e., `git clone https://github.com/euroargodev/BBP_RTQC.git`. This will create a directory called `BBP_RTQC`. Enter `BBP_RTQC-main` and you will find the scripts and configuration files needed.
 
 The file `environment.yml` allows you to recreate the `conda` environment needed for the notebooks to work. If you do not have `conda` installed, follow the instructions here: https://docs.conda.io/projects/conda/en/latest/user-guide/install/.
 
