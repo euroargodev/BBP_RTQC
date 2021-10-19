@@ -1,4 +1,4 @@
-name: OLTraj
+name: BBP_RTQC 
 channels:
   - conda-forge
   - defaults
