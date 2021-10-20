@@ -3,11 +3,11 @@ tests = {"A": "Global Range",
          "A2": "Global Range negative medfilt1 values",
          "B": "Noisy Profile",
          "C": "High-Deep Value",
-         "D": "Surface Hook", 
+#         "D": "Surface Hook", 
          "E": "Missing Data",
-         "F": "Negative non-surface",
+#          "F": "Negative non-surface",
          "G": "Parking Hook",      
-         "H": "Stuck Value"
+#          "H": "Stuck Value"
         }
 
 
