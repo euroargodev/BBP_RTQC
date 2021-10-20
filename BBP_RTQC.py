@@ -266,69 +266,6 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
     return QC_Flags, QC_1st_failed_test
 
-#
-# ##################################################################
-# ##################################################################
-# def BBP_Surface_hook_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
-#                           fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
-#     # BBP: nparray with all BBP data
-#     # BBPmf1: median-filtered BBP data
-#     # QC_Flags: array with QC flags
-#     # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
-#     # fn: name of corresponding B-file
-#     #
-#     # WHAT IS DONE: Then this tests fails, only the failing points are flagged (QC=3)
-#
-#     # ### SURFACE HOOK TEST (test order code "D")
-#     # <br>
-#     # #### Objective:
-#     # To detect and flag values of BBP532 and BBP700 that are negative near the surface.
-#     # <br>
-#     # <br>
-#     # #### What is done:
-#     # Check that:<br>
-#     # <code> BBP700 </code>  is greater than 0 m$^{-1}$ in the top 5 dbars.<br>
-#     # <code> BBP532 </code>  is greater than 0 m$^{-1}$ in the top 5 dbars.<br>
-#     # <br>
-#     # This test is needed because the medfilt1(BBP) used in the Global Range Test remove these few negative values near the surface.
-#     # This likely needed because of some miscalibration in the pressure that cause the BBP meter to collect data outside of the water.
-#     # <br>
-#     # <br>
-#     # #### QC flag if test fails
-#     # 3
-#     # <br>
-#     # <br>
-#     # EXAMPLE: coriolis_BD6901482_097.nc
-#     # __________________________________________________________________________________________
-#     #
-#
-#     FAILED = False
-#
-#     QC = 3
-#     QC_TEST_CODE = 'D'
-#     ISBAD = np.zeros(len(BBPmf1), dtype=bool) # initialise flag
-#     iSURF = np.where(PRES <= D_ISURF)[0]
-#
-#     # this is the test
-#     ibad = np.where( (BBP[iSURF] < D_MIN_BBP700) )[0]
-#     ISBAD[iSURF[ibad]] = 1
-#     if np.any(ISBAD == 1): # If ISBAD is not empty
-#         FAILED = True
-#         # apply flag
-#         QC_Flags[ISBAD] = QC
-#         QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
-#
-#         if VERBOSE:
-#             print('Failed Surface_hook_test')
-#             print('applying QC=' + str(QC) + '...')
-#
-#     if (PLOT) & (FAILED):
-#         plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
-#                             fn, SAVEPLOT, VERBOSE)
-#
-#     return QC_Flags, QC_1st_failed_test
-
-
 ##################################################################
 ##################################################################
 def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1st_failed_test,
@@ -417,71 +354,6 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
 
     return QC_Flags, QC_1st_failed_test
 
-#
-# # ## Tests that flag the entire profile
-#
-#
-# ##################################################################
-# ##################################################################
-# def BBP_Negative_nonsurface_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
-#                                  fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
-#     # BBP: nparray with all BBP data
-#     # BBPmf1: median-filtered BBP data
-#     # QC_Flags: array with QC flags
-#     # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
-#     # fn: name of corresponding B-file
-#     #
-#     # WHAT IS DONE: Then this tests fails, only the failing points are flagged (QC=3)
-#
-#     # ### NEGATIVE NON-SURFACE TEST (test order code "F")
-#     # <br>
-#     # #### Objective:
-#     # To detect and flag values of BBP532 and BBP700 that are negative below the surface.
-#     # <br>
-#     # <br>
-#     # #### What is done:
-#     # Check that:<br>
-#     # <code> BBP700 </code>  is less than 0 m$^{-1}$ below 5 dbars.<br>
-#     # <code> BBP532 </code>  is less than 0 m$^{-1}$ below 5 dbars.<br>
-#     # <br>
-#     # This test is needed because the medfilt1(BBP) used in the Global Range Test remove these few negative values near the surface.
-#     # <br>
-#     # <br>
-#     # #### QC flag if test fails
-#     # 3
-#     # <br>
-#     # <br>
-#     # EXAMPLE: coriolis_BD6901527_182.nc<br>
-#     # __________________________________________________________________________________________
-#     #
-#
-#     FAILED = False
-#
-#     QC = 3
-#     QC_TEST_CODE = 'F'
-#     ISBAD = np.zeros(len(BBP), dtype=bool) # initialise index
-#
-#     # this is the test
-#     ibad = np.where( (BBP < D_MIN_BBP700) & (PRES > D_ISURF) )[0]
-#
-#     if np.any(ibad):
-#         FAILED = True
-#         ISBAD[ibad] = 1
-#
-#         QC_Flags[ISBAD] = QC
-#         QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
-#
-#         if VERBOSE:
-#             print('Failed BBP_Negative_nonsurface_test')
-#             print('applying QC=' + str(QC) + '...')
-#
-#     if (PLOT) & (FAILED):
-#         plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
-#                             fn, SAVEPLOT, VERBOSE)
-#
-#     return QC_Flags, QC_1st_failed_test
-
-
 ##################################################################
 ##################################################################
 def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
@@ -553,7 +425,6 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
     return QC_Flags, QC_1st_failed_test, res
 
-
 ##################################################################
 ##################################################################
 def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
@@ -611,68 +482,6 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
 
     return QC_Flags, QC_1st_failed_test
-
-# ##################################################################
-# ##################################################################
-# def BBP_Stuck_Value_test(COUNTS, BBP, PRES, QC_Flags, QC_1st_failed_test,
-#                               fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
-#     # COUNTS: np.array with all COUNTS
-#     # QC_Flags: array with QC flags
-#     # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
-#     # fn: name of corresponding B-file
-#     #
-#     # WHAT IS DONE: When the test fails, all points in the profile are flagged (QC=3)
-#
-#     # ### BBP STUCK-VALUE TEST  (test order code "H")
-#     # <br>
-#     # #### Objective:
-#     # To detect and flag profiles of BBP that have a constant value. Could indicate sensor failure or cap forgotten on BBP meter at time of deployment.
-#     # <br><br>
-#     # #### What is done:
-#     # Check if all values are equal
-#     #
-#     # Flag entire profile.
-#     # <br><br>
-#     # #### QC flag if test fails
-#     # 3
-#     # <br>
-#     # <br>
-#     # EXAMPLE:
-#     # __________________________________________________________________________________________
-#
-#     FAILED = False
-#
-#     QC = 4 # flag to apply if the result of the test is true
-#     QC_TEST_CODE = 'H'
-#     ISBAD = np.zeros(len(COUNTS), dtype=bool) # initialise flags
-#
-#     # this is the test
-#     innan = np.where(~np.isnan(COUNTS))[0]
-#     if len(innan)==0:
-#         if VERBOSE:
-#             print('No data in COUNTS, exiting test')
-#         return QC_Flags, QC_1st_failed_test
-#
-#     if (np.all(COUNTS[innan] == COUNTS[innan][0])) & (len(COUNTS[innan])>1) : # check if all profile has the same value and if there is more than one value in the profile
-#         ISBAD = np.ones(len(COUNTS), dtype=bool) # flag entire profile
-#
-#     if np.any(ISBAD==1): # if ISBAD, then apply QC_flag=3
-#         FAILED = True
-#
-#         QC_Flags[ISBAD] = QC
-#         QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
-#
-#         if VERBOSE:
-#             print('Failed Stuck-Value test')
-#             print('applying QC=' + str(QC) + '...')
-#
-#     if (PLOT) & (FAILED):
-#                 plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE],
-#                                     QC_TEST_CODE, fn, SAVEPLOT, VERBOSE)
-#
-#
-#
-#     return QC_Flags, QC_1st_failed_test
 
 ##################################################################
 ##################################################################
