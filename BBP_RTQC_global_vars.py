@@ -1,6 +1,6 @@
 # these are the tests and their codes
-tests = {"A": "Global Range",
-         "A2": "Global Range negative medfilt1 values",
+tests = {"A": "Global Range >0",
+         "A2": "Global Range <0",
          "B": "Noisy Profile",
          "C": "High-Deep Value",
          "E": "Missing Data",
