@@ -645,9 +645,14 @@ def BBP_Stuck_Value_test(COUNTS, BBP, PRES, QC_Flags, QC_1st_failed_test,
     QC = 4 # flag to apply if the result of the test is true
     QC_TEST_CODE = 'H'
     ISBAD = np.zeros(len(COUNTS), dtype=bool) # initialise flags
- 
+
     # this is the test
     innan = np.where(~np.isnan(COUNTS))[0]
+    if len(innan)==0:
+        if VERBOSE:
+            print('No data in COUNTS, exiting test')
+        return QC_Flags, QC_1st_failed_test
+
     if (np.all(COUNTS[innan] == COUNTS[innan][0])) & (len(COUNTS[innan])>1) : # check if all profile has the same value and if there is more than one value in the profile
         ISBAD = np.ones(len(COUNTS), dtype=bool) # flag entire profile
 
