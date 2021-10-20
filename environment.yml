@@ -234,4 +234,3 @@ dependencies:
   - rockhound
   - gulp
   - notedown
-prefix: /users/modellers/gdal/miniconda3/envs/OLTraj
