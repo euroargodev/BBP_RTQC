@@ -461,7 +461,7 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
     ISBAD = np.zeros(len(BBPmf1), dtype=bool) # flag for noisy profile
 
     # this is the test
-    iDEEP = np.where(PRES>C_DEPTH_THRESH)
+    iDEEP = np.where(PRES>C_DEPTH_THRESH)[0]
     if (np.nanmedian(BBPmf1[iDEEP]) > C_DEEP_BBP700_THRESH) & ( len(BBPmf1[iDEEP]) >= C_N_of_ANOM_POINTS):
         ISBAD = np.ones(len(BBPmf1), dtype=bool)
 
