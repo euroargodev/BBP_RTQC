@@ -38,7 +38,7 @@ def test_tests(ia):
 
     # find index of code
     code = a[ia]['code']
-    print(str(ia) , " ", code)
+    print(str(ia), " ", code)
 
     # create BBP700 array
     BBP = np.asarray(a[ia]['input']['BBP'])
@@ -48,6 +48,8 @@ def test_tests(ia):
     if code == 'G':
         maxPRES = np.asarray(a[ia]['input']['maxPRES'])
         PARK_PRES = np.asarray(a[ia]['input']['PARK_PRES'])
+    if code == 'E':
+        maxPRES = np.asarray(a[ia]['input']['maxPRES'])
     if code == 'H':
         COUNTS = np.asarray(a[ia]['input']['COUNTS'])
 
@@ -82,38 +84,40 @@ def test_tests(ia):
                                                                          np.ones(BBP.shape),
                                                                          BBP_QC_failed_test,
                                                                          'test_tests')
-    elif code == 'D':
-        #### Surface Hook
-        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Surface_hook_test(BBP, BBPmf1, PRES,
-                                                                         np.ones(BBP.shape),
-                                                                         BBP_QC_failed_test,
-                                                                         'test_tests')
+    # elif code == 'D':
+    #     #### Surface Hook
+    #     QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Surface_hook_test(BBP, BBPmf1, PRES,
+    #                                                                      np.ones(BBP.shape),
+    #                                                                      BBP_QC_failed_test,
+    #                                                                      'test_tests')
     elif code == 'E':
         #### Missing Data
-        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Missing_Data_test(BBP, PRES,
+        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Missing_Data_test(BBP, PRES, maxPRES,
                                                                          np.ones(BBP.shape),
                                                                          BBP_QC_failed_test,
                                                                          'test_tests')
-    elif code == 'F':
-        #### Negative non-surface
-        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Negative_nonsurface_test(BBP, PRES,
-                                                                                np.ones(BBP.shape),
-                                                                                BBP_QC_failed_test,
-                                                                                'test_tests')
+    # elif code == 'F':
+    #     #### Negative non-surface
+    #     QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Negative_nonsurface_test(BBP, PRES,
+    #                                                                             np.ones(BBP.shape),
+    #                                                                             BBP_QC_failed_test,
+    #                                                                             'test_tests')
     elif code == 'G':
         #### Parking Hook
         QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES,
                                                                         np.ones(BBP.shape),
                                                                         BBP_QC_failed_test,
                                                                         'test_tests')
-    elif code == 'H':
-        #### Stuck value
-        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Stuck_Value_test(COUNTS, BBP, PRES,
-                                                                    np.ones(BBP.shape),
-                                                                    BBP_QC_failed_test,
-                                                                    'test_tests')
+    # elif code == 'H':
+    #     #### Stuck value
+    #     QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Stuck_Value_test(COUNTS, BBP, PRES,
+    #                                                                 np.ones(BBP.shape),
+    #                                                                 BBP_QC_failed_test,
+    #                                                                 'test_tests')
+
 
     assert np.all(QC_FLAGS_OUT == a[ia]['output']['flags_out']) and myfunc(tests[code] + ' / ' + a[ia]['specifics'] + ': test succeded.'), 'Assertion error for ' + tests[code]
+
 
 def test_BBP_RTQC():
     '''
@@ -152,6 +156,22 @@ def medfilt1(data, kernel_size, endcorrection='shrinkkernel'):
          filtered_data[n] = np.nanmedian(data[i1:i2])
 
      return filtered_data
+
+
+
+# apply QC flag to array with all flags
+def apply_qc(QC_Flags, ISBAD, QC, QC_1st_failed_test, QC_TEST_CODE):
+
+    # find which part of the QC_Flag[ISBAD] array needs to be updated with the new flag
+    i2flag = np.where(QC_Flags[ISBAD] < QC)[0]  # find where the existing flag is lower than the new flag (cannot lower existing flags)
+
+    # apply flag
+    QC_Flags[ISBAD[i2flag]] = QC
+
+    # record which test changed the flag
+    QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
+
+    return QC_Flags, QC_1st_failed_test
 
 
 # function to define adaptive median filtering based on Christina Schallemberg's suggestion for CHLA
@@ -238,23 +258,21 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
     QC = 3
     QC_TEST_CODE = 'A' # or 'A2' if negative medfilt1 value is found
-    ISBAD = np.zeros(len(BBPmf1), dtype=bool) # initialise array with indices of where test failed
+    ISBAD = np.array([])  # index of where flags should be applied in the profile
 
     # this is the test
-    ibad = np.where( (BBPmf1 > A_MAX_BBP700) | (BBPmf1 < A_MIN_BBP700) )[0]
+    ISBAD = np.where( (BBPmf1 > A_MAX_BBP700) | (BBPmf1 < A_MIN_BBP700) )[0]
 
-    ISBAD[ibad] = 1
-    if np.any(ISBAD==1): # If ISBAD is not empty
+    if ISBAD.size != 0:# If ISBAD is not empty
         FAILED = True
         # flag entire profile if any negative value is found
         if np.any(BBPmf1 < A_MIN_BBP700):
+            if VERBOSE:
+                print('negative median-filtered BBP: flagging all profile')
             QC_TEST_CODE = 'A2'
             ISBAD = np.where(BBPmf1)[0]
-
         # apply flag
-        QC_Flags[ISBAD] = QC
-        QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
-
+        QC_Flags, QC_1st_failed_test = apply_qc(QC_Flags, ISBAD, QC, QC_1st_failed_test, QC_TEST_CODE)
 
         if VERBOSE:
             print('Failed Global_Range_test')
@@ -262,94 +280,6 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
     if (PLOT) & (FAILED):
         plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
-                            fn, SAVEPLOT, VERBOSE)
-
-    return QC_Flags, QC_1st_failed_test
-
-##################################################################
-##################################################################
-def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1st_failed_test,
-                          fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
-    # BBP: nparray with all BBP data
-    # BBPmf1: nparray with medfilt BBP data
-    # maxPRES: maximum pressure recorded in this profile
-    # PARK_PRES: programmed parking pressure for this profile
-    # QC_Flags: array with QC flags
-    # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
-    # fn: name of corresponding B-file
-    #
-    # WHAT IS DONE: Then this tests fails, only the failing points are flagged (QC=3)
-
-    # ### PARKING HOOK TEST (test order code "G")
-    # <br>
-    # #### Objective:
-    # To detect and flag values of BBP532 and BBP700 that anomalously high at the start (i.e., bottom) of the profile, when the parking PRES is close to the maximum recorded PRES.
-    # <br>
-    # <br>
-    # #### What is done:<br>
-    # Compute <code>baseline</code> using BBPmf1 above which the test is triggered using data that are in an PRES interval <code>iPRESmed</code> between 50 (G_DELTAPRES1) and 20 (G_DELTAPRES1) dbars above the maxPRES.
-    # The <code>baseline</code> is defined as <code>median(BBPmf1[iPREDmed]) + G_STDFACTOR*robstd(BBPmf1[iPREDmed])</code>, where <code>robstd(BBPmf1[iPREDmed])</code> is the robust standard deviation.<br>
-    # The test checks that:
-    # <code>BBPmf1 > baseline</code> <br>
-    # <br>
-    # <br>
-    # #### QC flag if test fails
-    # 4
-    # <br>
-    # <br>
-    # EXAMPLE: coriolis_BD6901580_107.nc
-    # __________________________________________________________________________________________
-    #
-
-    FAILED = False
-
-    QC = 4
-    QC_TEST_CODE = 'G'
-    ISBAD = np.zeros(len(BBP), dtype=bool) # initialise flag
-
-    if (np.isnan(maxPRES)) | (np.isnan(PARK_PRES)):
-        if VERBOSE: print('WARNING:\nmaxPRES='+str(maxPRES)+' dbars,\nPARK_PRES='+str(PARK_PRES))
-        ipdb.set_trace()
-
-
-    # check that there are enough data to run the test
-    imaxPRES = np.where(PRES==maxPRES)[0][0]
-    deltaPRES = PRES[imaxPRES] - PRES[imaxPRES-1]
-    if deltaPRES > G_DELTAPRES2:
-        if VERBOSE: print('vertical resolution is too low to check for Parking Hook')
-        return QC_Flags, QC_1st_failed_test
-
-
-    # check if max PRES is 'close' (i.e., within 100 dbars) to PARK_PRES
-    if abs(maxPRES - PARK_PRES)>=100:
-        return QC_Flags, QC_1st_failed_test
-
-
-    # define PRES range over which to compute the baseline for the test
-    iPRESmed = np.where((PRES>= maxPRES - G_DELTAPRES1 ) & (PRES< maxPRES - G_DELTAPRES2) )[0]
-    # define PRES range over which to apply the test
-    iPREStest = np.where((PRES>= maxPRES - G_DELTAPRES1 ))[0]
-
-    # compute parameters to define baseline above which test fails
-    medBBP = np.nanmedian(BBP[iPRESmed])
-    baseline = medBBP + G_DEV
-
-    # this is the test
-    ibad = np.where( BBP[iPREStest] > baseline )[0]
-    ISBAD[iPREStest[ibad]] = 1
-
-    if np.any(ISBAD==1): # If ISBAD is not empty
-        FAILED = True
-        # apply flag
-        QC_Flags[ISBAD] = QC
-        QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
-
-        if VERBOSE:
-            print('Failed Parking_hook_test')
-            print('applying QC=' + str(QC) + '...')
-
-    if (PLOT) & (FAILED):
-        plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
                             fn, SAVEPLOT, VERBOSE)
 
     return QC_Flags, QC_1st_failed_test
@@ -385,12 +315,9 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
     FAILED = False
 
-    QC = 3; # flag to apply if the result of the test is true
+    QC = 3 # flag to apply if the result of the test is true
     QC_TEST_CODE = 'B'
     ISBAD = np.array([]) # flag for noisy profile
-
-#     rel_res = np.empty(BBP.shape)
-#     rel_res[:] = np.nan
 
     res = np.empty(BBP.shape)
     res[:] = np.nan
@@ -399,20 +326,20 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
     if len(innan)>10: # if we have at least 10 points in the profile
 
-        #new constrain: noise should be below 100 dbars
-        iPRES = np.where(PRES[innan]>B_PRES_THRESH)[0]
+        #new constraint: noise should be below 100 dbars
+        iPRES = np.where(PRES[innan] > B_PRES_THRESH)[0]
 
         res[innan] = np.abs(BBP[innan]-BBPmf1[innan])
-        ioutliers = np.where(abs(res[innan][iPRES])>B_RES_THRESHOLD)[0] # index of where the rel res are greater than the threshold
+        ioutliers = np.where(abs(res[innan][iPRES]) > B_RES_THRESHOLD)[0] # index of where the rel res are greater than the threshold
 
-        if len(ioutliers)/len(innan)>=B_FRACTION_OF_PROFILE_THAT_IS_OUTLIER: # this is the actual test: are there more than a certain fraction of points that are noisy?
+        if len(ioutliers)/len(innan) >= B_FRACTION_OF_PROFILE_THAT_IS_OUTLIER: # this is the actual test: is there more than a certain fraction of points that are noisy?
             ISBAD = ioutliers
 
     # update QC_Flags to 3 when bad profiles are found
-    if len(ISBAD)>0:
+    if ISBAD.size != 0:
         FAILED = True
-        QC_Flags[:] = QC
-        QC_1st_failed_test[QC_TEST_CODE][:] = QC_TEST_CODE
+        # apply flag
+        QC_Flags, QC_1st_failed_test = apply_qc(QC_Flags, np.where(BBP)[0], QC, QC_1st_failed_test, QC_TEST_CODE)# np.where(BBP)[0] is used to flag the entire profile
 
         if VERBOSE:
             print('Failed BBP_Noisy_Profile_test')
@@ -458,18 +385,17 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
     QC = 3; # flag to apply if the result of the test is true
     QC_TEST_CODE = 'C'
-    ISBAD = np.zeros(len(BBPmf1), dtype=bool) # flag for noisy profile
+    ISBAD = np.array([]) # flag for noisy profile
 
     # this is the test
-    iDEEP = np.where(PRES>C_DEPTH_THRESH)[0]
-    if (np.nanmedian(BBPmf1[iDEEP]) > C_DEEP_BBP700_THRESH) & ( len(BBPmf1[iDEEP]) >= C_N_of_ANOM_POINTS):
-        ISBAD = np.ones(len(BBPmf1), dtype=bool)
+    iDEEP = np.where(PRES > C_DEPTH_THRESH)[0]
+    if (np.nanmedian(BBPmf1[iDEEP]) > C_DEEP_BBP700_THRESH) & (len(BBPmf1[iDEEP]) >= C_N_of_ANOM_POINTS):
+        ISBAD = np.where(BBPmf1)[0]
 
-    if np.any(ISBAD==1): # if ISBAD, then apply QC_flag=3
+    if ISBAD.size != 0: # if ISBAD, then apply QC_flag=3
         FAILED = True
-
-        QC_Flags[ISBAD] = QC
-        QC_1st_failed_test[QC_TEST_CODE][ISBAD] = QC_TEST_CODE
+        # apply flag
+        QC_Flags, QC_1st_failed_test = apply_qc(QC_Flags, ISBAD, QC, QC_1st_failed_test, QC_TEST_CODE)# np.where(BBP)[0] is used to flag the entire profile
 
         if VERBOSE:
             print('Failed High_Deep_Values_test')
@@ -485,7 +411,7 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
 ##################################################################
 ##################################################################
-def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
+def BBP_Missing_Data_test(BBP, PRES, maxPRES, QC_Flags, QC_1st_failed_test,
                           fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
     # QC_Flags: array with QC flags
@@ -519,57 +445,153 @@ def BBP_Missing_Data_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     FAILED = False
 
-    QC_all = [np.nan, np.nan]
-    QC_all[0] = 3 # flag to apply if shallow profile
-    QC_all[1] = 4 # flag to apply if the result of the test is true
+    QC_all = [np.nan, np.nan, np.nan]
+    QC_all[0] = 2 # flag to apply if shallow profile
+    QC_all[1] = 4 # flag to apply if the result of the test is true only in one bin
+    QC_all[2] = 3 # flag to apply if the result of the test is true elsewhere
 
     QC_TEST_CODE = 'E'
-    MIN_N_PERBIN = 1 # minimum number of points in each bin
-    ISBAD = 0 # flag for noisy profile
+    ISBAD = np.array([])  # index of where flags should be applied in the profile
+
 
     # bin the profile into 100-dbars bins
     bins = np.linspace(50, 1000, 10) # create 10 bins between 0 and 1000 dbars
-    bin_counts = np.zeros(bins.shape)
+    bin_counts = np.zeros(bins.shape) # initialise array with number of counts in each bin
     for i in range(len(bins)):
-        if i==0:
-            bin_counts[i] = len(np.where(PRES<bins[i])[0])
+        if i == 0:
+            bin_counts[i] = len(np.where(PRES < bins[i])[0])
         else:
-            bin_counts[i] = len(np.where((PRES>=bins[i-1]) & (PRES<bins[i]))[0])
+            bin_counts[i] = len(np.where((PRES >= bins[i-1]) & (PRES < bins[i]))[0])
 
     # check if there are bins with missing data
-    if np.any(np.nonzero(bin_counts<MIN_N_PERBIN)[0]):
-        ISBAD = 1
+    if np.any(np.nonzero(bin_counts < E_MIN_N_PERBIN)[0]):
+        isbad4plot = np.where(bin_counts < E_MIN_N_PERBIN)[0]
+        ISBAD = np.where(BBP)[0] # flag the entire profile
 
         # find which bins contain data
-        nonempty = np.where(bin_counts>0)[0] # index of bins that contain data points
+        nonempty = np.where(bin_counts > 0)[0] # index of bins that contain data points
 
+        # select which flag to use
         if nonempty.size != 0:
+
+            # if shallow profile
+            if maxPRES < E_MAXPRES:
+                if VERBOSE: print("shallow profile: QC=" + str(QC_all[0])) # with test
+                QC = QC_all[0]
+
             # if there is only one bin with data then
-            if len(np.nonzero(bin_counts>MIN_N_PERBIN)[0])==1:  # with test
+            elif len(np.nonzero(bin_counts > E_MIN_N_PERBIN)[0]) == 1:  # with test
                 if VERBOSE: print("data only in one bin: QC=" + str(QC_all[1]))
                 QC = QC_all[1]
 
-            # if missing data in the profile
+            # if missing data profile
             else:
-                if VERBOSE: print("missing data in some bins: QC=" + str(QC_all[0])) # with test
-                QC = QC_all[0]
+                if VERBOSE: print("missing data: QC=" + str(QC_all[2])) # with test
+                QC = QC_all[2]
 
         else: # this is for when we have no data at all, then
             if VERBOSE: print("no data at all: QC=" + str(QC_all[1])) # with test
             QC = QC_all[1]
 
-    if ISBAD == 1: # if ISBAD, then apply QC_flag
+    if ISBAD.size != 0: # if ISBAD, then apply QC_flag
         FAILED = True
-        QC_1st_failed_test[QC_TEST_CODE][:] = QC_TEST_CODE
-        QC_Flags[:] = QC
+        # apply flag
+        QC_Flags, QC_1st_failed_test = apply_qc(QC_Flags, ISBAD, QC, QC_1st_failed_test, QC_TEST_CODE)# np.where(BBP)[0] is used to flag the entire profile
 
         if VERBOSE:
             print('Failed Missing_Data_test')
             print('applying QC=' + str(QC) + '...')
 
     if (PLOT) & (FAILED):
-                plot_failed_QC_test(BBP, bin_counts, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE],
+                plot_failed_QC_test(BBP, bin_counts, PRES, isbad4plot, QC_Flags, QC_1st_failed_test[QC_TEST_CODE],
                                     QC_TEST_CODE, fn, SAVEPLOT, VERBOSE)
+
+    return QC_Flags, QC_1st_failed_test
+
+##################################################################
+##################################################################
+def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1st_failed_test,
+                          fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
+    # BBP: nparray with all BBP data
+    # BBPmf1: nparray with medfilt BBP data
+    # maxPRES: maximum pressure recorded in this profile
+    # PARK_PRES: programmed parking pressure for this profile
+    # QC_Flags: array with QC flags
+    # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
+    # fn: name of corresponding B-file
+    #
+    # WHAT IS DONE: Then this tests fails, only the failing points are flagged (QC=3)
+
+    # ### PARKING HOOK TEST (test order code "G")
+    # <br>
+    # #### Objective:
+    # To detect and flag values of BBP532 and BBP700 that anomalously high at the start (i.e., bottom) of the profile, when the parking PRES is close to the maximum recorded PRES.
+    # <br>
+    # <br>
+    # #### What is done:<br>
+    # Compute <code>baseline</code> using BBPmf1 above which the test is triggered using data that are in an PRES interval <code>iPRESmed</code> between 50 (G_DELTAPRES1) and 20 (G_DELTAPRES1) dbars above the maxPRES.
+    # The <code>baseline</code> is defined as <code>median(BBPmf1[iPREDmed]) + G_STDFACTOR*robstd(BBPmf1[iPREDmed])</code>, where <code>robstd(BBPmf1[iPREDmed])</code> is the robust standard deviation.<br>
+    # The test checks that:
+    # <code>BBPmf1 > baseline</code> <br>
+    # <br>
+    # <br>
+    # #### QC flag if test fails
+    # 4
+    # <br>
+    # <br>
+    # EXAMPLE: coriolis_BD6901580_107.nc
+    # __________________________________________________________________________________________
+    #
+
+    FAILED = False
+
+    QC = 4
+    QC_TEST_CODE = 'G'
+    ISBAD = np.array([]) # flag for noisy profile
+
+    if (np.isnan(maxPRES)) | (np.isnan(PARK_PRES)):
+        if VERBOSE: print('WARNING:\nmaxPRES='+str(maxPRES)+' dbars,\nPARK_PRES='+str(PARK_PRES))
+        ipdb.set_trace()
+
+
+    # check that there are enough data to run the test
+    imaxPRES = np.where(PRES == maxPRES)[0][0]
+    deltaPRES = PRES[imaxPRES] - PRES[imaxPRES-1]
+    if deltaPRES > G_DELTAPRES2:
+        if VERBOSE: print('vertical resolution is too low to check for Parking Hook')
+        return QC_Flags, QC_1st_failed_test
+
+
+    # check if max PRES is 'close' (i.e., within 100 dbars) to PARK_PRES
+    if abs(maxPRES - PARK_PRES) >= 100:
+        return QC_Flags, QC_1st_failed_test
+
+
+    # define PRES range over which to compute the baseline for the test
+    iPRESmed = np.where((PRES >= maxPRES - G_DELTAPRES1 ) & (PRES < maxPRES - G_DELTAPRES2) )[0]
+    # define PRES range over which to apply the test
+    iPREStest = np.where((PRES >= maxPRES - G_DELTAPRES1 ))[0]
+
+    # compute parameters to define baseline above which test fails
+    medBBP = np.nanmedian(BBP[iPRESmed])
+    baseline = medBBP + G_DEV
+
+    # this is the test
+    ibad = np.where(BBP[iPREStest] > baseline)[0]
+    ISBAD = iPREStest[ibad]
+
+    if ISBAD.size != 0: # If ISBAD is not empty
+        FAILED = True
+        # apply flag
+        QC_Flags, QC_1st_failed_test = apply_qc(QC_Flags, ISBAD, QC, QC_1st_failed_test, QC_TEST_CODE)
+
+        if VERBOSE:
+            print('Failed Parking_hook_test')
+            print('applying QC=' + str(QC) + '...')
+
+    if (PLOT) & (FAILED):
+        plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
+                            fn, SAVEPLOT, VERBOSE)
 
     return QC_Flags, QC_1st_failed_test
 
@@ -590,13 +612,13 @@ def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, 
     innan = np.nonzero(~np.isnan(BBP))
 
     # check that there are enough data to plot
-    if len(BBP)<2:
+    if len(BBP) < 2:
         if VERBOSE:
             print("not enough data to plot... exiting")
         return
     
 
-    if QC_TEST_CODE != "0":
+    if (QC_TEST_CODE != "0") & (QC_TEST_CODE != "E"):
         ax1.plot(BBPmf1[ISBAD], PRES[ISBAD], 'o', ms=10, color='r', mfc='r', alpha=0.7, zorder=60)
         ax1.plot(BBP[innan], PRES[innan], 'o-', ms=3, color='k', mfc='none', alpha=0.7) # <<<<<<<<<<<<<<<<<<
 
@@ -900,7 +922,7 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
         BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_High_Deep_Values_test(BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
         
         # MISSING_DATA TEST
-        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Missing_Data_test(BBP700, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
+        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Missing_Data_test(BBP700, PRES, maxPRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
         
         # # NEGATIVE NON-SURFACE TEST
         # BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Negative_nonsurface_test(BBP700, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
