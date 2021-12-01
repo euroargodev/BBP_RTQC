@@ -446,7 +446,7 @@ def BBP_Missing_Data_test(BBP, PRES, maxPRES, QC_Flags, QC_1st_failed_test,
     FAILED = False
 
     QC_all = [np.nan, np.nan, np.nan]
-    QC_all[0] = 2 # flag to apply if shallow profile
+    QC_all[0] = 3 # 2 flag to apply if shallow profile
     QC_all[1] = 4 # flag to apply if the result of the test is true only in one bin
     QC_all[2] = 3 # flag to apply if the result of the test is true elsewhere
 

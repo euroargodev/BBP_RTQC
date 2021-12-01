@@ -15,16 +15,16 @@ A_MAX_BBP700 = 0.01 # [1/m] REVISED VALUE (very conservative estimate based on h
 # Noisy profile
 B_RES_THRESHOLD = 0.0005 # [1/m] threshold for relative residuals
 B_FRACTION_OF_PROFILE_THAT_IS_OUTLIER = 0.1 # fraction of profile with relative residuals above RES_THRESHOLD
-B_PRES_THRESH = 100 # [dbars] # this is to avoid flagging profiles with spikes in surface data (likely good data)
+B_PRES_THRESH = 100 # [dbar] # this is to avoid flagging profiles with spikes in surface data (likely good data)
 
 # High-Deep Value
-C_DEPTH_THRESH = 400 #700 #[dbars] below this threshold we consider it "deep"
+C_DEPTH_THRESH = 700 #[dbar] below this threshold we consider the profile "deep"
 C_DEEP_BBP700_THRESH = 0.0005 # [1/m] threshold for bbp at depth
 C_N_of_ANOM_POINTS = 5 # number of anomalous points required for the test to fail
 
 # Parking hook
-G_DELTAPRES1 = 50 # [dbars] difference in PRES from parking pressure over which the test is implemented
-G_DELTAPRES2 = 20 # [dbars] difference in PRES from parking pressure use to compute test baseline
+G_DELTAPRES1 = 50 # [dbar] difference in PRES from parking pressure over which the test is implemented
+G_DELTAPRES2 = 20 # [dbar] difference in PRES from parking pressure use to compute test baseline
 G_DEV = 0.0002 # [1/m] deviation from baseline that identifies anomalous data points
 
 # Missing Data
