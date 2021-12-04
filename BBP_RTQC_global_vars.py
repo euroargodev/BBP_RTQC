@@ -18,7 +18,7 @@ B_FRACTION_OF_PROFILE_THAT_IS_OUTLIER = 0.1 # fraction of profile with relative 
 B_PRES_THRESH = 100 # [dbar] # this is to avoid flagging profiles with spikes in surface data (likely good data)
 
 # High-Deep Value
-C_DEPTH_THRESH = 700 #[dbar] below this threshold we consider the profile "deep"
+C_DEPTH_THRESH = 700 # [dbar] depth threshold below which the test acts
 C_DEEP_BBP700_THRESH = 0.0005 # [1/m] threshold for bbp at depth
 C_N_of_ANOM_POINTS = 5 # number of anomalous points required for the test to fail
 
