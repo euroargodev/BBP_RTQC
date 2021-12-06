@@ -6,7 +6,14 @@ A draft set of BBP RTQC tests and their impact on the GDAC data were presented a
 
 A group of interested people met after ADMT21 to discuss the proposed tests further. At that time, I updated the presentation with the feedback/notes/decisions taken: https://drive.google.com/file/d/1JxdmBCS2MhG6qzmHwpmTCb-D5D3uX3qC/view?usp=sharing
 
-The current version (30-Sep-2021) of the tests has not been presented to the community yet.
+The tests were revised based on this feedback during Summer 2021.
+
+In October 2021 an additional workshop was organised to further discuss the revised tests. A decision was taken to reduce the number of tests to facilitate implementation at the DAC level.
+
+During November 2021 the tests were revised accordingly and sensitivity analyises were carried out to tune the test parameters.
+
+The results of this work were presented at ADMT22.
+ 
 
 # Set up and installation
 To work with these examples you first need to clone this repository (i.e., `git clone https://github.com/euroargodev/BBP_RTQC.git`). This will create a directory called `BBP_RTQC`. Enter `BBP_RTQC` and you will find the scripts and configuration files needed.
