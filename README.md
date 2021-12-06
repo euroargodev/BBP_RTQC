@@ -56,5 +56,7 @@ ere used respectively to assert the tests and plot the example files inputs and 
 
 
 # TO-DO LIST
+- Add Regional-Range test when enough QCed data become available
 - Add Animal-Spike test
 - Add non-medfilt high BBP test? 
+- ...
