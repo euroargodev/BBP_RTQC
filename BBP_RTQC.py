@@ -563,7 +563,7 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
 
 
     # check if max PRES is 'close' (i.e., within 100 dbars) to PARK_PRES
-    if abs(maxPRES - PARK_PRES) >= 100:
+    if abs(maxPRES - PARK_PRES) >= G_DELTAPRES0:
         return QC_Flags, QC_1st_failed_test
 
 
