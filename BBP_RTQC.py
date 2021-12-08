@@ -225,32 +225,21 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
     # QC_Flags: array with QC flags
     # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
     # fn: name of corresponding B-file
-    #
-    # WHAT IS DONE: Then this tests fails, only the failing points are flagged (QC=3)
+    # PLOT: flag to plot results
+    # SAVEPLOT: flag to save plot
+    # VERBOSE: flag to display verbose output
 
-    # ### GLOBAL RANGE TEST (test order code "A")
-    # <br>
-    # #### Objective:
-    # To detect and flag values of BBP532 and BBP700 that are outside the expected range.
-    # <br>
-    # <br>
-    # #### What is done:
-    # Check that:<br>
-    # <code> medfilt1(BBP700) </code>  is in range [0, 0.001] m$^{-1} $.<br>
-    # <code> medfilt1(BBP532) </code> is in range [0, 0.001] m$^{-1} $.<br>
-    # <br>
-    # The value of <code>A_MAX_BBP700=0.001</code> is taken as a very conservative estimate based on histograms in fig 2 of Bisson et al., 2019, 10.1364/OE.27.030191
-    # <br>
-    # <br>
-    # #### QC flag if test fails
-    # 3
-    # <br>
-    # Note: the entire profile is flagged, if any negative point is found (because if there is a negative value, then
-    # it is worth looking at the profile during DMQC).
-    # <br>
-    # <br>
-    # EXAMPLE (only positive values): csiro_BR5905397_080.nc, coriolis_BR7900591_240.nc<br>
-    # EXAMPLE (medfilt1 negative values) coriolis_BR6903093_044.nc:
+    # Objective: To flag data points or profiles outside an expected range of BBP values. 
+    # The expected range is defined by two extrema: A_MIN_BBP700 = 0 m-1 and A_MAX_BBP700 = 0.01 m-1. 
+    # A_MIN_BBP700 is defined to flag negative values, while A_MAX_BBP700 is a conservative 
+    # estimate of the maximum BBP to be expected in the open ocean, based on statistics of 
+    # satellite and BGC-Argo data (Bisson et al., 2019). 
+    #
+    # Implementation: The test is implemented on data that have been median filtered (to remove spikes).
+    #
+    # Flagging: A QC flag of 3 is assigned to data points that fall above A_MAX_BBP700, while the 
+    # entire profile is flagged with QC = 3 if any data point falls below A_MIN_BBP700 
+    # (this is to reflect the more serious condition of having negative median filtered data in a profile).
     # __________________________________________________________________________________________
     #
 
@@ -293,24 +282,22 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
     # QC_Flags: array with QC flags
     # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
     # fn: name of corresponding B-file
-    #
-    # WHAT IS DONE: When the test fails, all points in the profile are flagged (QC=3)
+    # PLOT: flag to plot results
+    # SAVEPLOT: flag to save plot
+    # VERBOSE: flag to display verbose output
 
-    # ### BBP NOISY-PROFILE TEST  (test order code "B")
-    # <br>
-    # #### Objective:
-    # To detect and flag profiles of BBP that are affected by noisy data.
-    # <br><br>
-    # #### What is done:
-    # Compute <code> res = abs(BBP-medfilt1(BBP))</code>.
+    # Objective: To flag profiles that are affected by noisy data. This noise could 
+    # indicate sensor malfunctioning, some animal spikes, or other anomalous conditions.
     #
-    # Flag profiles where at least <code>15%</code> of the profile has <code>res > 0.001</code>  m$^{-1}$.<br>
-    # <br><br>
-    # #### QC flag if test fails
-    # 3
-    # <br>
-    # <br>
-    # EXAMPLE: bodc_BR6901183_130.nc, aoml_BD5905108_073.nc
+    # Implementation: The absolute residuals between the median filtered BBP and the 
+    # raw BBP values are computed below a pressure threshold B_PRES_THRESH = 100 dbar 
+    # (this is to avoid surface data, where spikes are more common and generate false 
+    # positives). The test fails if residuals with values above B_RES_THRESHOLD = 0.0005 m-1 
+    # occur in at least B_FRACTION_OF_PROFILE_THAT_IS_OUTLIER = 10% of the profile. 
+    # These threshold values were selected after visual inspection of flagged profiles.
+    #
+    # Flagging: If the test fails, a QC flag of 3 is assigned to the entire profile.
+    #
     # __________________________________________________________________________________________
 
     FAILED = False
@@ -361,24 +348,29 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
     # QC_Flags: array with QC flags
     # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
     # fn: name of corresponding B-file
-    #
-    # WHAT IS DONE: When the test fails, all points in the profile are flagged (QC=3)
+    # PLOT: flag to plot results
+    # SAVEPLOT: flag to save plot
+    # VERBOSE: flag to display verbose output
 
-    # ### BBP HIGH-DEEP-VALUES TEST  (test order code "C")
-    # <br>
-    # #### Objective:
-    # To detect and flag profiles of BBP that have at least some (5) points anomalously high values at depth. It could indicate multiple problems: wrong calibration coefficients, biofouling, bad sensor, grounding, etc.
-    # <br><br>
-    # #### What is done:
-    # Check if <code>median(BBP700)</code> below <code>800 dbars</code> is above a threshold of <code>0.0005 </code> m$^{-1}$.  (this is half the value typical for surface bbp in the oligotrophic ocean, smoothed bbp data at depth are expected to be lower than this value).
+    # Objective: To flag profiles with anomalously high BBP values at depth. 
+    # These high values at depth could indicate a variety of problems, including 
+    # biofouling, incorrect calibration coefficients, sensor malfunctioning, etc. 
+    # A threshold value of 0.0005 m-1 was selected that is half of the value typical
+    # for surface BBP in the oligotrophic ocean: median-filtered BBP data at depth
+    # are expected to be considerably lower than this threshold value.
     #
-    # Flag entire profile.
-    # <br><br>
-    # #### QC flag if test fails
-    # 3
-    # <br>
-    # <br>
-    # EXAMPLE: coriolis_BR6902827_363.nc
+    # Implementation: This tests fails if the median-filtered BBP profile has at 
+    # least a certain number (C_N_of_ANOM_POINTS = 5) of anomalous points 
+    # (medfilt(BBP700) > C_DEEP_BBP700_THRESH = 0.0005 m-1) below a threshold 
+    # depth (C_DEPTH_THRESH = 700 dbar). Note that this test can only be implemented 
+    # if the profile reaches a maximum pressure greater than 700 dbar. Variables 
+    # in capital letters represent parameters used by each test that can be modified, if needed.
+    #
+    # Flagging: If the test fails, a QC flag of 3 is applied to the entire profile. 
+    # High deep BBP values can result from a variety of reasons, including natural causes, 
+    # in which case data might be set to good quality during DMQC. Therefore, we decided
+    # to use QC=3 and to revise these profiles during DMQC.
+    #
     # __________________________________________________________________________________________
 
     FAILED = False
@@ -417,30 +409,25 @@ def BBP_Missing_Data_test(BBP, PRES, maxPRES, QC_Flags, QC_1st_failed_test,
     # QC_Flags: array with QC flags
     # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
     # fn: name of corresponding B-file
+    # PLOT: flag to plot results
+    # SAVEPLOT: flag to save plot
+    # VERBOSE: flag to display verbose output
+    
+    # Objective: To detect and flag profiles that have a large fraction of 
+    # missing data. Missing data could indicate shallow or incomplete profiles.
     #
-    # WHAT IS DONE: When the test fails, all points in the profile are flagged (QC=3 or QC=4 if data only in one bin)
-
-    # ### BBP MISSING-DATA TEST  (test order code "E")
-    # <br>
-    # #### Objective:
-    # To detect and flag profiles of BBP that have a large fraction of missing data. This test can also detect profiles that are too shallow with respect to the Argo mission.
-    # <br>
-    # <br>
-    # #### What is done:
-    # Ensure that we have at least 1 measurements every 100 dbars in the upper 1000 dbars.
-    #
-    # Flag entire profile.
-    # <br><br>
-    # #### QC flag if test fails
-    # 3 if data are available in less than 10 bins in the upper 1000 dbars<br>
-    # 4 if only data within only one bin in the upper 1000 dbars
-    # <br>
-    # <br>
-    # EXAMPLE (shallow profilewith BBP(PRES>200dbars)<E_DEEP_BBP700_THRESH, QC=2): coriolis_BR6902827_005.nc, csiro_BD1901338_660<br>
-    # EXAMPLE (shallow profile with BBP(PRES>200dbars)>E_DEEP_BBP700_THRESH, QC=3): csiro_BD1901338_006.nc<br>
-    # EXAMPLE (shallow profile with maxPRES<200 dbars, QC=3): csiro_BD1901338_032.nc<br>
-    # EXAMPLE (data in less than 10 bins, QC=3): coriolis_BR7900560_060.nc<br>
-    # EXAMPLE (data in only one bin, QC=4): coriolis_BD7900591_077.nc<br>
+    # Implementation: The upper 1000 dbar of the profile are divided into 10 
+    # pressure bins with the following lower boundaries (all in dbar): 
+    # 50, 156, 261, 367, 472, 578,  683, 789, 894, 1000. For example, 
+    # the first bin covers the pressure range [0, 50), the second [51, 156), 
+    # etc. The test fails if any of the bins contains fewer data points than MIN_N_PERBIN = 1.
+    # 
+    # Flagging: Different flags are assigned depending on how many bins are empty.
+    # If only one bin contains data or the profile has no data at all, a QC flag of 4 
+    # is applied to the entire profile. This condition may indicate a malfunctioning 
+    # sensor or a profile that is so shallow that it is too difficult to quality control in real time.
+    # If there are bins with missing data, but the number of bins with data is 
+    # greater than one, then a QC flag of 3 is assigned to the entire profile.
     # __________________________________________________________________________________________
 
     FAILED = False
@@ -519,29 +506,31 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
     # QC_Flags: array with QC flags
     # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
     # fn: name of corresponding B-file
-    #
-    # WHAT IS DONE: Then this tests fails, only the failing points are flagged (QC=3)
-
-    # ### PARKING HOOK TEST (test order code "G")
-    # <br>
-    # #### Objective:
-    # To detect and flag values of BBP532 and BBP700 that anomalously high at the start (i.e., bottom) of the profile, when the parking PRES is close to the maximum recorded PRES.
-    # <br>
-    # <br>
-    # #### What is done:<br>
-    # Compute <code>baseline</code> using BBPmf1 above which the test is triggered using data that are in an PRES interval <code>iPRESmed</code> between 50 (G_DELTAPRES1) and 20 (G_DELTAPRES1) dbars above the maxPRES.
-    # The <code>baseline</code> is defined as <code>median(BBPmf1[iPREDmed]) + G_STDFACTOR*robstd(BBPmf1[iPREDmed])</code>, where <code>robstd(BBPmf1[iPREDmed])</code> is the robust standard deviation.<br>
-    # The test checks that:
-    # <code>BBPmf1 > baseline</code> <br>
-    # <br>
-    # <br>
-    # #### QC flag if test fails
-    # 4
-    # <br>
-    # <br>
-    # EXAMPLE: coriolis_BD6901580_107.nc
+    # PLOT: flag to plot results
+    # SAVEPLOT: flag to save plot
+    # VERBOSE: flag to display verbose output
+    
+    # Objective: To flag data points near the parking pressure with 
+    # anomalously high values, when the parking pressure is close to the 
+    # maximum pressure of the profile. This could indicate that particles 
+    # have accumulated on the sensor or the float and that are released when the float starts ascending.
+    # 
+    # Implementation: First the parking pressure (PARK_PRES) is extracted 
+    # from the metadata file. Then, we verify that the vertical resolution of
+    # the data near PARK_PRES is greater than G_DELTAPRES2 = 20 dbar: if it is not, 
+    # the test cannot be applied to this profile. If the vertical resolution is sufficient, 
+    # we verify that the maximum pressure of the profile is less than G_DELTAPRES0 (100 dbar) different 
+    # from PARK_PRES (i.e., that PARK_PRES ~= max(PRES)), i.e., that the profile starts 
+    # from the parking pressure. If it does, a pressure range iPRESmed 
+    # (max(PRES) - G_DELTAPRES2 > PRES >= max(PRES) - G_DELTAPRES1, with G_DELTAPRES1 = 50 dbar) 
+    # is defined over which the baseline for the test will be calculated. This baseline 
+    # is computed as the median + G_DEV (with G_DEV =  0.0002 m-1). The test is implemented 
+    # in the pressure range iPREStest (where PRES>= maxPRES - G_DELTAPRES1). The test fails 
+    # if BBP within iPREStest is greater than the baseline.
+    # 
+    # Flagging: A QC flag of 4 is applied to the points that fail the test.
+    # 
     # __________________________________________________________________________________________
-    #
 
     FAILED = False
 
