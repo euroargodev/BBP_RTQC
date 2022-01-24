@@ -761,7 +761,17 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
 
     COUNTS = ds.BETA_BACKSCATTERING700[N_PROF].values
     BBP700 = ds.BBP700[N_PROF].values
-    PRES = ds.PRES[N_PROF].values
+    
+    if np.all(~np.isnan(ds.PRES_ADJUSTED.values)):
+        PRES = ds.PRES_ADJUSTED[N_PROF].values
+    else:
+        if VERBOSE: print('no PRES_ADJUSTED for this cycle')
+        ds.close()
+        # set returned values to flag
+        PRES = BBP700 = COUNTS = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
+        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan, COUNTS
+
+    #PRES = ds.PRES[N_PROF].values
     JULD = ds.JULD[N_PROF].values
     LAT = ds.LATITUDE[N_PROF].values
     LON = ds.LONGITUDE[N_PROF].values
