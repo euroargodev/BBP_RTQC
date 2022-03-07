@@ -462,7 +462,7 @@ def BBP_Missing_Data_test(BBP, PRES, maxPRES, QC_Flags, QC_1st_failed_test,
         if nonempty.size != 0:
 
             # if shallow profile
-            if maxPRES < E_MAXPRES:
+            if (maxPRES < E_MAXPRES) & (len(np.nonzero(bin_counts > E_MIN_N_PERBIN)[0]) > 1):
                 if VERBOSE: print("shallow profile: QC=" + str(QC_all[0])) # with test
                 QC = QC_all[0]
 
