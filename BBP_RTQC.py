@@ -218,6 +218,61 @@ def adaptive_medfilt1(x, y, PLOT=False):
 
 ##################################################################
 ##################################################################
+# def BBP_Refined_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
+#                           fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
+#     # BBP: nparray with all BBP data
+#     # BBPmf1: median-filtered BBP data
+#     # QC_Flags: array with QC flags
+#     # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
+#     # fn: name of corresponding B-file
+#     # PLOT: flag to plot results
+#     # SAVEPLOT: flag to save plot
+#     # VERBOSE: flag to display verbose output
+#
+#     # Objective: To flag data points or profiles outside an expected range of BBP values.
+#     # The expected range is defined by two extrema: A_MIN_BBP700 = 0 m-1 and A_MAX_BBP700 = 0.01 m-1.
+#     # A_MIN_BBP700 is defined to flag negative values, while A_MAX_BBP700 is a conservative
+#     # estimate of the maximum BBP to be expected in the open ocean, based on statistics of
+#     # satellite and BGC-Argo data (Bisson et al., 2019).
+#     #
+#     # Implementation: The test is implemented on data that have been median filtered (to remove spikes).
+#     #
+#     # Flagging: A QC flag of 3 is assigned to data points that fall above A_MAX_BBP700, while the
+#     # entire profile is flagged with QC = 3 if any data point falls below A_MIN_BBP700
+#     # (this is to reflect the more serious condition of having negative median filtered data in a profile).
+#     # __________________________________________________________________________________________
+#     #
+#
+#     FAILED = False
+#
+#     QC = 3
+#     QC_TEST_CODE = 'A' # or 'A2' if negative medfilt1 value is found
+#     ISBAD = np.array([])  # index of where flags should be applied in the profile
+#
+#     # this is the test
+#     ISBAD = np.where( (BBPmf1 > A_MAX_BBP700) | (BBPmf1 < A_MIN_BBP700) )[0]
+#
+#     if ISBAD.size != 0:# If ISBAD is not empty
+#         FAILED = True
+#         # flag entire profile if any negative value is found
+#         if np.any(BBPmf1 < A_MIN_BBP700):
+#             if VERBOSE:
+#                 print('negative median-filtered BBP: flagging all profile')
+#             QC_TEST_CODE = 'A2'
+#             ISBAD = np.where(BBPmf1)[0]
+#         # apply flag
+#         QC_Flags, QC_1st_failed_test = apply_qc(QC_Flags, ISBAD, QC, QC_1st_failed_test, QC_TEST_CODE)
+#
+#         if VERBOSE:
+#             print('Failed Global_Range_test')
+#             print('applying QC=' + str(QC) + '...')
+#
+#     if (PLOT) & (FAILED):
+#         plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
+#                             fn, SAVEPLOT, VERBOSE)
+#
+#     return QC_Flags, QC_1st_failed_test
+
 def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
                           fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
@@ -229,37 +284,44 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
     # SAVEPLOT: flag to save plot
     # VERBOSE: flag to display verbose output
 
-    # Objective: To flag data points or profiles outside an expected range of BBP values. 
-    # The expected range is defined by two extrema: A_MIN_BBP700 = 0 m-1 and A_MAX_BBP700 = 0.01 m-1. 
-    # A_MIN_BBP700 is defined to flag negative values, while A_MAX_BBP700 is a conservative 
-    # estimate of the maximum BBP to be expected in the open ocean, based on statistics of 
-    # satellite and BGC-Argo data (Bisson et al., 2019). 
+    # Objective: To flag data points or profiles outside an expected range of BBP values.
+    # The expected range is defined by two extrema: A_MIN_BBP700 = 0 m-1 and A_MAX_BBP700 = 0.01 m-1.
+    # A_MIN_BBP700 is defined to flag negative values, while A_MAX_BBP700 is a conservative
+    # estimate of the maximum BBP to be expected in the open ocean, based on statistics of
+    # satellite and BGC-Argo data (Bisson et al., 2019).
     #
     # Implementation: The test is implemented on data that have been median filtered (to remove spikes).
     #
-    # Flagging: A QC flag of 3 is assigned to data points that fall above A_MAX_BBP700, while the 
-    # entire profile is flagged with QC = 3 if any data point falls below A_MIN_BBP700 
+    # Flagging: A QC flag of 3 is assigned to data points that fall above A_MAX_BBP700, while the
+    # entire profile is flagged with QC = 3 if any data point falls below A_MIN_BBP700
     # (this is to reflect the more serious condition of having negative median filtered data in a profile).
     # __________________________________________________________________________________________
     #
 
     FAILED = False
 
-    QC = 3
+    QC = 4
     QC_TEST_CODE = 'A' # or 'A2' if negative medfilt1 value is found
     ISBAD = np.array([])  # index of where flags should be applied in the profile
 
     # this is the test
-    ISBAD = np.where( (BBPmf1 > A_MAX_BBP700) | (BBPmf1 < A_MIN_BBP700) )[0]
+    ISBAD = np.where( (BBP > A_MAX_BBP700) | (BBP < A_MIN_BBP700) )[0]
 
     if ISBAD.size != 0:# If ISBAD is not empty
         FAILED = True
         # flag entire profile if any negative value is found
-        if np.any(BBPmf1 < A_MIN_BBP700):
-            if VERBOSE:
-                print('negative median-filtered BBP: flagging all profile')
+        if np.any(BBP > A_MAX_BBP700):
+            # if VERBOSE:
+            #             #     print('negative median-filtered BBP: flagging all profile')
+            QC_TEST_CODE = 'A'
+            ISBAD = np.where(BBP > A_MAX_BBP700 )[0]
+
+        if np.any(BBP < A_MIN_BBP700):
+            # if VERBOSE:
+            #             #     print('negative median-filtered BBP: flagging all profile')
             QC_TEST_CODE = 'A2'
-            ISBAD = np.where(BBPmf1)[0]
+            ISBAD = np.where(BBP < A_MIN_BBP700 )[0]
+        
         # apply flag
         QC_Flags, QC_1st_failed_test = apply_qc(QC_Flags, ISBAD, QC, QC_1st_failed_test, QC_TEST_CODE)
 
@@ -268,7 +330,10 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
             print('applying QC=' + str(QC) + '...')
 
     if (PLOT) & (FAILED):
-        plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
+        #plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
+        #                    fn, SAVEPLOT, VERBOSE)
+
+        plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
                             fn, SAVEPLOT, VERBOSE)
 
     return QC_Flags, QC_1st_failed_test
@@ -627,8 +692,10 @@ def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, 
         ax1.plot(C_DEEP_BBP700_THRESH*np.ones(2), [-5, 2000], '--', color='r', mfc='none', alpha=0.7)
 
     if QC_TEST_CODE != 'B':
-#         ax1.set_xscale('log')
         ax1.set_xlim((-0.001, 0.015))
+    
+    if QC_TEST_CODE == "A":
+        ax1.set_xlim((-0.001, 0.045))
 
     elif QC_TEST_CODE =='B':
         ax1.plot(B_RES_THRESHOLD*np.ones(2), [-5, 2000], '--', color='r', mfc='none', alpha=0.7)
