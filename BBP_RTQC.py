@@ -968,8 +968,9 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
             BBP700_QC_1st_failed_test[ikey] = np.full(shape=BBP700.shape, fill_value='0')
 
         # # Plot original profile even if no QC flag is raisef
-        # plot_failed_QC_test(BBP700, BBP700mf1, PRES, BBP700*np.nan, BBP700_QC_flags, BBP700_QC_1st_failed_test, '0', fn_p, SAVEPLOT, VERBOSE)
-
+#        if 'coriolis' in fn_p:
+#            plot_failed_QC_test(BBP700, BBP700mf1, PRES, BBP700*np.nan, BBP700_QC_flags, BBP700_QC_1st_failed_test, '0', fn_p, SAVEPLOT, VERBOSE)
+#
 
         # GLOBAL-RANGE TEST for BBP700
         BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Global_range_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
