@@ -163,7 +163,7 @@ def medfilt1(data, kernel_size, endcorrection='shrinkkernel'):
 def apply_qc(QC_Flags, ISBAD, QC, QC_1st_failed_test, QC_TEST_CODE):
 
     # find which part of the QC_Flag[ISBAD] array needs to be updated with the new flag
-    i2flag = np.where(QC_Flags[ISBAD] < QC)[0]  # find where the existing flag is lower than the new flag (cannot lower existing flags)
+    i2flag = np.where( QC_Flags[ISBAD] < QC )[0]  # find where the existing flag is lower than the new flag (cannot lower existing flags)
 
     # apply flag
     QC_Flags[ISBAD[i2flag]] = QC
@@ -273,7 +273,7 @@ def adaptive_medfilt1(x, y, PLOT=False):
 #
 #     return QC_Flags, QC_1st_failed_test
 
-def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
+def BBP_Negative_BBP_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
                           fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
     # BBPmf1: median-filtered BBP data
@@ -300,28 +300,20 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
     FAILED = False
 
-    QC = 4
     QC_TEST_CODE = 'A' # or 'A2' if negative medfilt1 value is found
-    ISBAD = np.array([])  # index of where flags should be applied in the profile
 
     # this is the test
-    ISBAD = np.where( (BBP > A_MAX_BBP700) | (BBP < A_MIN_BBP700) )[0]
+    iLT5dbar = np.where( PRES < 5 )[0] # index for data shallower than 5 dbar
+    ISBAD = np.where( BBP < A_MIN_BBP700 )[0] # first fill in all ISBAD indices where BBP < threshold
+    ISBAD_gt5dbar = [x for x in ISBAD if x not in iLT5dbar] #  select only ISBAD indices deeper than 5 dbar
+    ISBAD_lt5dbar = [x for x in ISBAD if x in iLT5dbar] # select only ISBAD indices shallower than 5 dbar
 
-    if ISBAD.size != 0:# If ISBAD is not empty
+    if len(ISBAD_gt5dbar) != 0:# If ISBAD_gt5dbar is not empty
         FAILED = True
-        # flag entire profile if any negative value is found
-        if np.any(BBP > A_MAX_BBP700):
-            # if VERBOSE:
-            #             #     print('negative median-filtered BBP: flagging all profile')
-            QC_TEST_CODE = 'A'
-            ISBAD = np.where(BBP > A_MAX_BBP700 )[0]
+        QC = 4
+        QC_TEST_CODE = 'A2'
+        ISBAD = np.where(BBP)[0] # flag entire profile
 
-        if np.any(BBP < A_MIN_BBP700):
-            # if VERBOSE:
-            #             #     print('negative median-filtered BBP: flagging all profile')
-            QC_TEST_CODE = 'A2'
-            ISBAD = np.where(BBP < A_MIN_BBP700 )[0]
-        
         # apply flag
         QC_Flags, QC_1st_failed_test = apply_qc(QC_Flags, ISBAD, QC, QC_1st_failed_test, QC_TEST_CODE)
 
@@ -329,10 +321,23 @@ def BBP_Global_range_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
             print('Failed Global_Range_test')
             print('applying QC=' + str(QC) + '...')
 
-    if (PLOT) & (FAILED):
-        #plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
-        #                    fn, SAVEPLOT, VERBOSE)
 
+    if len(ISBAD_lt5dbar) > len(ISBAD_gt5dbar): # if there are bad points only at PRES <5 dbar
+        FAILED = True
+        QC = 4
+        QC_TEST_CODE = 'A'
+
+        ISBAD = np.asarray(ISBAD_lt5dbar) # flag only negative values shallower than 5 dbar
+
+        # apply flag
+        QC_Flags, QC_1st_failed_test = apply_qc(QC_Flags, ISBAD, QC, QC_1st_failed_test, QC_TEST_CODE)
+
+        if VERBOSE:
+            print('Failed Global_Range_test')
+            print('applying QC=' + str(QC) + '...')
+
+
+    if (PLOT) & (FAILED):
         plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
                             fn, SAVEPLOT, VERBOSE)
 
@@ -973,7 +978,7 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
 #
 
         # GLOBAL-RANGE TEST for BBP700
-        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Global_range_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
+        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Negative_BBP_test(BBP700, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
 
         # # SURFACE-HOOK TEST for BBP700
         # BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Surface_hook_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
