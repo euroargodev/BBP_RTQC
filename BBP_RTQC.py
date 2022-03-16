@@ -61,17 +61,17 @@ def test_tests(ia):
         return True
 
     if code == 'A':
-        #### Global range
-        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Global_range_test(BBP, BBPmf1, PRES,
-                                                                        np.ones(BBP.shape),
-                                                                        BBP_QC_failed_test,
-                                                                        'test_tests')
+        #### Negative-BBP only at PRES<5 dbar 
+        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Negative_BBP_test(BBP, PRES,
+                                                                np.ones(BBP.shape),
+                                                                BBP_QC_failed_test,
+                                                                'test_tests')
     elif code == 'A2':
-        #### Global range
-        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Global_range_test(BBP, BBPmf1, PRES,
-                                                                        np.ones(BBP.shape),
-                                                                        BBP_QC_failed_test,
-                                                                        'test_tests')
+        #### Negative-BBP deeper than 5 dbar
+        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Negative_BBP_test(BBP, PRES,
+                                                                np.ones(BBP.shape),
+                                                                BBP_QC_failed_test,
+                                                                'test_tests')
     elif code == 'B':
         #### Noisy Profile
         QC_FLAGS_OUT, BBP_QC_failed_test, tmp = BBP_Noisy_profile_test(BBP, BBPmf1, PRES,
