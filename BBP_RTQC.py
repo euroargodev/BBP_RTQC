@@ -506,6 +506,7 @@ def BBP_Missing_Data_test(BBP, PRES, maxPRES, QC_Flags, QC_1st_failed_test,
     QC_all[0] = 3 # 2 flag to apply if shallow profile
     QC_all[1] = 4 # flag to apply if the result of the test is true only in one bin
     QC_all[2] = 3 # flag to apply if the result of the test is true elsewhere
+    QC_all[3] = 9 # flag to apply if there are no data at all
 
     QC_TEST_CODE = 'E'
     ISBAD = np.array([])  # index of where flags should be applied in the profile
@@ -548,7 +549,7 @@ def BBP_Missing_Data_test(BBP, PRES, maxPRES, QC_Flags, QC_1st_failed_test,
 
         else: # this is for when we have no data at all, then
             if VERBOSE: print("no data at all: QC=" + str(QC_all[1])) # with test
-            QC = QC_all[1]
+            QC = QC_all[3]
 
     if ISBAD.size != 0: # if ISBAD, then apply QC_flag
         FAILED = True
