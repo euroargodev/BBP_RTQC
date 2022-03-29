@@ -311,18 +311,15 @@ def BBP_Negative_BBP_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     if len(ISBAD_ge5dbar) != 0:# If ISBAD_gt5dbar is not empty
         FAILED = True
-        # QC = 4
         QC_TEST_CODE = 'A2'
-        # ISBAD = np.where(BBP)[0] # flag entire profile
 
         # flag based on fraction of bad points
         fraction_of_bad_points = len(ISBAD_ge5dbar)/len(i_ge5dbar)
         if fraction_of_bad_points > A_MAX_FRACTION_OF_BAD_POINTS:
             QC = 4
-            ISBAD = np.where(BBP)[0]  # flag entire profile
         else:
-            QC = 4
-            ISBAD = ISBAD_ge5dbar  # flag only points
+            QC = 3
+        ISBAD = np.where(BBP)[0]  # flag entire profile
 
         # apply flag
         QC_Flags, QC_1st_failed_test = apply_qc(QC_Flags, ISBAD, QC, QC_1st_failed_test, QC_TEST_CODE)

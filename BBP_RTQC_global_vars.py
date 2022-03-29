@@ -8,10 +8,12 @@ tests = {"A": "Negative (<5 dbar)",
         }
 
 
-# Global range
+# Negative BBP
 A_MIN_BBP700 = 0    # [1/m]
 #A_MAX_BBP700 = 0.01 # [1/m] REVISED VALUE (very conservative estimate based on histograms in fig 2 of Bisson et al., 2019, 10.1364/OE.27.030191)
 #A_MAX_BBP700 = 0.03 # [1/m] REVISED VALUE (very conservative estimate based on histograms in fig 2 of Bisson et al., 2019, 10.1364/OE.27.030191)
+A_MAX_FRACTION_OF_BAD_POINTS = 0.1
+
 
 # Noisy profile
 B_RES_THRESHOLD = 0.0005                    # [1/m] threshold for relative residuals
