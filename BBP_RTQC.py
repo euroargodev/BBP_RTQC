@@ -304,15 +304,25 @@ def BBP_Negative_BBP_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
 
     # this is the test
     iLT5dbar = np.where( PRES < 5 )[0] # index for data shallower than 5 dbar
+    i_ge5dbar = np.where( PRES >= 5 )[0] # index for data deeper than or at 5 dbar
     ISBAD = np.where( BBP < A_MIN_BBP700 )[0] # first fill in all ISBAD indices where BBP < threshold
     ISBAD_ge5dbar = [x for x in ISBAD if x not in iLT5dbar] #  select only ISBAD indices deeper or equal than 5 dbar
     ISBAD_lt5dbar = [x for x in ISBAD if x in iLT5dbar] # select only ISBAD indices shallower than 5 dbar
 
     if len(ISBAD_ge5dbar) != 0:# If ISBAD_gt5dbar is not empty
         FAILED = True
-        QC = 4
+        # QC = 4
         QC_TEST_CODE = 'A2'
-        ISBAD = np.where(BBP)[0] # flag entire profile
+        # ISBAD = np.where(BBP)[0] # flag entire profile
+
+        # flag based on fraction of bad points
+        fraction_of_bad_points = len(ISBAD_ge5dbar)/len(i_ge5dbar)
+        if fraction_of_bad_points > A_MAX_FRACTION_OF_BAD_POINTS:
+            QC = 4
+            ISBAD = np.where(BBP)[0]  # flag entire profile
+        else:
+            QC = 4
+            ISBAD = ISBAD_ge5dbar  # flag only points
 
         # apply flag
         QC_Flags, QC_1st_failed_test = apply_qc(QC_Flags, ISBAD, QC, QC_1st_failed_test, QC_TEST_CODE)
