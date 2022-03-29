@@ -305,10 +305,10 @@ def BBP_Negative_BBP_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
     # this is the test
     iLT5dbar = np.where( PRES < 5 )[0] # index for data shallower than 5 dbar
     ISBAD = np.where( BBP < A_MIN_BBP700 )[0] # first fill in all ISBAD indices where BBP < threshold
-    ISBAD_gt5dbar = [x for x in ISBAD if x not in iLT5dbar] #  select only ISBAD indices deeper than 5 dbar
+    ISBAD_ge5dbar = [x for x in ISBAD if x not in iLT5dbar] #  select only ISBAD indices deeper or equal than 5 dbar
     ISBAD_lt5dbar = [x for x in ISBAD if x in iLT5dbar] # select only ISBAD indices shallower than 5 dbar
 
-    if len(ISBAD_gt5dbar) != 0:# If ISBAD_gt5dbar is not empty
+    if len(ISBAD_ge5dbar) != 0:# If ISBAD_gt5dbar is not empty
         FAILED = True
         QC = 4
         QC_TEST_CODE = 'A2'
@@ -322,7 +322,8 @@ def BBP_Negative_BBP_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
             print('applying QC=' + str(QC) + '...')
 
 
-    if len(ISBAD_lt5dbar) > len(ISBAD_gt5dbar): # if there are bad points only at PRES <5 dbar
+    # if len(ISBAD_lt5dbar) > len(ISBAD_ge5dbar): # if there are bad points only at PRES <5 dbar
+    if (len(ISBAD_lt5dbar) > 0) & (len(ISBAD_ge5dbar)==0):  # if there are bad points only at PRES <5 dbar
         FAILED = True
         QC = 4
         QC_TEST_CODE = 'A'
@@ -335,7 +336,6 @@ def BBP_Negative_BBP_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
         if VERBOSE:
             print('Failed Global_Range_test')
             print('applying QC=' + str(QC) + '...')
-
 
     if (PLOT) & (FAILED):
         plot_failed_QC_test(BBP, BBP, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE], QC_TEST_CODE,
@@ -502,7 +502,7 @@ def BBP_Missing_Data_test(BBP, PRES, maxPRES, QC_Flags, QC_1st_failed_test,
 
     FAILED = False
 
-    QC_all = [np.nan, np.nan, np.nan]
+    QC_all = [np.nan, np.nan, np.nan, np.nan]
     QC_all[0] = 3 # 2 flag to apply if shallow profile
     QC_all[1] = 4 # flag to apply if the result of the test is true only in one bin
     QC_all[2] = 3 # flag to apply if the result of the test is true elsewhere
@@ -691,7 +691,7 @@ def plot_failed_QC_test(BBP, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test, 
     if (QC_TEST_CODE == "A") | (QC_TEST_CODE == "0") | (QC_TEST_CODE == "D") | (QC_TEST_CODE == "F") | (QC_TEST_CODE == "G"):
         ax1.plot(BBP[innan], PRES[innan], 'o-', ms=3, color='k', mfc='none', alpha=0.7) # <<<<<<<<<<<<<<<<<<
         ax1.plot(BBPmf1[innan], PRES[innan], '-', color='#41F11D', mfc='none', alpha=0.7)
-        ax1.plot(A_MAX_BBP700*np.ones(2), [-5, 2000], '--', color='r', mfc='none', alpha=0.7)
+        # ax1.plot(A_MAX_BBP700*np.ones(2), [-5, 2000], '--', color='r', mfc='none', alpha=0.7)
         ax1.plot(A_MIN_BBP700*np.ones(2), [-5, 2000], '--', color='r', mfc='none', alpha=0.7)
         
     if QC_TEST_CODE == "C":
@@ -845,7 +845,6 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
 #        # set returned values to flag
 #        PRES = BBP700 = COUNTS = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
 #        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan, COUNTS
-
     PRES = ds.PRES[N_PROF].values
     JULD = ds.JULD[N_PROF].values
     LAT = ds.LATITUDE[N_PROF].values
@@ -856,9 +855,6 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
     # compute median filtered profile
     BBP700mf1 = np.zeros(BBP700.shape)*np.nan
     BBP700mf1[innan] = adaptive_medfilt1(PRES[innan], BBP700[innan])
-
-
-
 
 ######### needed for Parking-hook test #########################################  
     # Read Mission Number in profile to extract PARKING DEPTH
@@ -881,7 +877,6 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
     else:
         i_miss_no = np.where(miss_no_float==miss_no_prof)[0][0]
 
-
     # find Park Pressure in META file
     iParkPres = np.where(ds_config.CONFIG_PARAMETER_NAME.astype('str').str.contains('CONFIG_ParkPressure_dbar'))[0][0]
     PARK_PRES = ds_config.CONFIG_PARAMETER_VALUE.values[i_miss_no,iParkPres]
@@ -890,10 +885,8 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
         PARK_PRES = 1000.
     maxPRES = np.nanmax(PRES)
 
-
     # close dataset
     ds.close()
-
 
     return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan, COUNTS
 
@@ -978,7 +971,7 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
 #            plot_failed_QC_test(BBP700, BBP700mf1, PRES, BBP700*np.nan, BBP700_QC_flags, BBP700_QC_1st_failed_test, '0', fn_p, SAVEPLOT, VERBOSE)
 #
 
-        # GLOBAL-RANGE TEST for BBP700
+        # Negative-BBP TEST for BBP700
         BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Negative_BBP_test(BBP700, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
 
         # # SURFACE-HOOK TEST for BBP700
