@@ -520,7 +520,7 @@ def BBP_Missing_Data_test(BBP, PRES, maxPRES, QC_Flags, QC_1st_failed_test,
 
 
     # bin the profile into 100-dbars bins
-    bins = np.linspace(50, 1000, 10) # create 10 bins between 0 and 1000 dbars
+    bins = np.round(np.linspace(50, 1000, 10)) # create 10 bins between 0 and 1000 dbars
     bin_counts = np.zeros(bins.shape) # initialise array with number of counts in each bin
     for i in range(len(bins)):
         if i == 0:
