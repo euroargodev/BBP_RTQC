@@ -176,10 +176,9 @@ def apply_qc(QC_Flags, ISBAD, QC, QC_1st_failed_test, QC_TEST_CODE):
 
 # function to define adaptive median filtering based on Christina Schallemberg's suggestion for CHLA
 def adaptive_medfilt1(x, y, PLOT=False):
-    # applies a median filtering followin Christina Schlallemberb's recommendations
+    # applies a median filtering 
     # x is PRES
     # y is BBP
-    
     
 #     x = PRES[innan]
 #     y = BBP700[innan]
@@ -190,20 +189,25 @@ def adaptive_medfilt1(x, y, PLOT=False):
     # initialise medfiltered array
     ymf = np.zeros(y.shape)*np.nan
 
-    ir_LT1 = np.where(xres<1)[0]
-    if np.any(ir_LT1):
-        win_LT1 = 11.
-        ymf[ir_LT1] = medfilt1(y[ir_LT1], win_LT1)   
+    ir_GT0 = np.where(xres>0)[0]
+    if np.any(ir_GT0):
+        win_GT0 = 11.
+        ymf[ir_GT0] = medfilt1(y[ir_GT0], win_GT0)   
 
-    ir_13 = np.where((xres>=1) & (xres<=3))[0]
-    if np.any(ir_13):
-        win_13 = 7.
-        ymf[ir_13] = medfilt1(y[ir_13], win_13)   
-
-    ir_GT3 = np.where(xres>3)[0]
-    if np.any(ir_GT3):
-        win_GT3 = 5.
-        ymf[ir_GT3] = medfilt1(y[ir_GT3], win_GT3)   
+#    ir_LT1 = np.where(xres<1)[0]
+#    if np.any(ir_LT1):
+#        win_LT1 = 11.
+#        ymf[ir_LT1] = medfilt1(y[ir_LT1], win_LT1)   
+#
+#    ir_13 = np.where((xres>=1) & (xres<=3))[0]
+#    if np.any(ir_13):
+#        win_13 = 7.
+#        ymf[ir_13] = medfilt1(y[ir_13], win_13)   
+#
+#    ir_GT3 = np.where(xres>3)[0]
+#    if np.any(ir_GT3):
+#        win_GT3 = 5.
+#        ymf[ir_GT3] = medfilt1(y[ir_GT3], win_GT3)   
 
     if PLOT:
         plt.plot(np.log10(y), x, 'o')
@@ -871,8 +875,10 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
 #             miss_no = miss_no[0]
 
     if ~np.all(miss_no_prof==miss_no_prof[0]):
-        print("different mission numbers in this profile")
-        ipbd.set_trace()
+        print("different mission numbers in this profile: skipping float")
+        # set returned values to flag
+        PRES = BBP700 = COUNTS = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
+        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan, COUNTS
     else:
         miss_no_prof = int(miss_no_prof[0])
 
@@ -919,8 +925,8 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
         return
 
     # read meta file
-    [ds_config, SENSOR_MODEL, SENSOR_MAKER, SENSOR_SERIAL_NO, PLATFORM_TYPE,
-     miss_no_float, DARK_BACKSCATTERING700, SCALE_BACKSCATTERING700, KHI_BACKSCATTERING700] = rd_WMOmeta(iwmo, VERBOSE)
+    [ds_config, SENSOR_MODEL, SENSOR_MAKER, SENSOR_SERIAL_NO, PLATFORM_TYPE, \
+            miss_no_float, DARK_BACKSCATTERING700, SCALE_BACKSCATTERING700, KHI_BACKSCATTERING700] = rd_WMOmeta(iwmo, VERBOSE)
     
     # list single profiles
     fn2glob = MAIN_DIR + "dac/" + iwmo + "/profiles/" + "B*" + iwmo.split("/")[-1] + "*_[0-9][0-9][0-9].nc"
