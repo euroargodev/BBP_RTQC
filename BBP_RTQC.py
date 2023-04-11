@@ -461,9 +461,12 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
     ISBAD = np.array([]) # flag for noisy profile
 
     # this is the test
-    iDEEP = np.where(PRES > C_DEPTH_THRESH)[0]
-    if (np.nanmedian(BBPmf1[iDEEP]) > C_DEEP_BBP700_THRESH) & (len(BBPmf1[iDEEP]) >= C_N_of_ANOM_POINTS):
-        ISBAD = np.where(BBPmf1)[0]
+    iDEEP = np.where(PRES > C_DEPTH_THRESH)[0] # find deep part of the profile
+    if np.any(np.nanmedian(BBPmf1[iDEEP]) > C_DEEP_BBP700_THRESH): # check to see if any point is greater than threshold
+        # find how many points fail the test
+        iPointsThatFail = np.where(np.nanmedian(BBPmf1[iDEEP]) > C_DEEP_BBP700_THRESH)[0] # indices of points that fail test
+        if iPointsThatFail >= C_N_of_ANOM_POINTS: # check if number of points that fail the test is above specified threshold
+            ISBAD = np.where(BBPmf1)[0] # flag entire profile
 
     if ISBAD.size != 0: # if ISBAD, then apply QC_flag=3
         FAILED = True
