@@ -333,8 +333,8 @@ def BBP_Negative_BBP_test(BBP, PRES, QC_Flags, QC_1st_failed_test,
             print('applying QC=' + str(QC) + '...')
 
 
-    # if len(ISBAD_lt5dbar) > len(ISBAD_ge5dbar): # if there are bad points only at PRES <5 dbar
-    if (len(ISBAD_lt5dbar) > 0) & (len(ISBAD_ge5dbar)==0):  # if there are bad points only at PRES <5 dbar
+    #if (len(ISBAD_lt5dbar) > 0) & (len(ISBAD_ge5dbar)==0):  # if there are bad points only at PRES <5 dbar
+    if len(ISBAD_lt5dbar) > 0:  # if there are bad points at PRES <5 dbar
         FAILED = True
         QC = 4
         QC_TEST_CODE = 'A'
