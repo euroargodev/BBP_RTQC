@@ -19,6 +19,7 @@ import re
 
 warnings.filterwarnings('ignore')
 
+
 def ini_flags(BBP700):
     # initialise output array of flags for prep_json and test_tests
     BBP700_QC_1st_failed_test = dict.fromkeys(tests.keys())
