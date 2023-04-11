@@ -396,13 +396,13 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
         #new constraint: noise should be below 100 dbars
         iPRES = np.where(PRES[innan] > B_PRES_THRESH)[0]
+        if np.any(iPRES): # if there are enough points, then continue wiht the test
+            res[innan] = np.abs(BBP[innan]-BBPmf1[innan])
+            ioutliers = np.where(abs(res[innan][iPRES]) > B_RES_THRESHOLD)[0] # index of where the rel res are greater than the threshold
 
-        res[innan] = np.abs(BBP[innan]-BBPmf1[innan])
-        ioutliers = np.where(abs(res[innan][iPRES]) > B_RES_THRESHOLD)[0] # index of where the rel res are greater than the threshold
-
-        #if len(ioutliers)/len(innan) >= B_FRACTION_OF_PROFILE_THAT_IS_OUTLIER: # this is the actual test: is there more than a certain fraction of points that are noisy?
-        if len(ioutliers)/len(iPRES) >= B_FRACTION_OF_PROFILE_THAT_IS_OUTLIER: # this is the actual test: is there more than a certain fraction of points that are noisy?
-            ISBAD = ioutliers
+            #if len(ioutliers)/len(innan) >= B_FRACTION_OF_PROFILE_THAT_IS_OUTLIER: # this is the actual test: is there more than a certain fraction of points that are noisy?
+            if len(ioutliers)/len(iPRES) >= B_FRACTION_OF_PROFILE_THAT_IS_OUTLIER: # this is the actual test: is there more than a certain fraction of points that are noisy?
+                ISBAD = ioutliers
 
     # update QC_Flags to 3 when bad profiles are found
     if ISBAD.size != 0:
