@@ -390,7 +390,7 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
     res = np.empty(BBP.shape)
     res[:] = np.nan
 
-    innan = np.where(~np.isnan(BBP))[0]
+    innan = np.where(~np.isnan(BBP))[0] # indices of where we have data in this profile 
 
     if len(innan)>10: # if we have at least 10 points in the profile
 
@@ -400,7 +400,8 @@ def BBP_Noisy_profile_test(BBP, BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
         res[innan] = np.abs(BBP[innan]-BBPmf1[innan])
         ioutliers = np.where(abs(res[innan][iPRES]) > B_RES_THRESHOLD)[0] # index of where the rel res are greater than the threshold
 
-        if len(ioutliers)/len(innan) >= B_FRACTION_OF_PROFILE_THAT_IS_OUTLIER: # this is the actual test: is there more than a certain fraction of points that are noisy?
+        #if len(ioutliers)/len(innan) >= B_FRACTION_OF_PROFILE_THAT_IS_OUTLIER: # this is the actual test: is there more than a certain fraction of points that are noisy?
+        if len(ioutliers)/len(iPRES) >= B_FRACTION_OF_PROFILE_THAT_IS_OUTLIER: # this is the actual test: is there more than a certain fraction of points that are noisy?
             ISBAD = ioutliers
 
     # update QC_Flags to 3 when bad profiles are found
