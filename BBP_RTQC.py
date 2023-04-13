@@ -463,10 +463,9 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
 
     # this is the test
     iDEEP = np.where(PRES > C_DEPTH_THRESH)[0] # find deep part of the profile
-    if np.nanmedian(BBPmf1[iDEEP]) > C_DEEP_BBP700_THRESH: # this is the test 
-        # find how many points fail the test
-        iPointsBelow700dbar = len(iDEEP) # indices of points that fail test
-        if iPointsBelow700dbar >= C_N_of_ANOM_POINTS: # check if we have enough points at depth 
+    nPointsBelow700dbar = len(iDEEP) # number of points below C_DEPTH_THRESH 
+    if nPointsBelow700dbar >= C_N_of_ANOM_POINTS: # check if we have enough points at depth 
+        if np.nanmedian(BBPmf1[iDEEP]) > C_DEEP_BBP700_THRESH: # check if median value at depth is greater than threshold
             ISBAD = np.where(BBPmf1)[0] # flag entire profile
 
     if ISBAD.size != 0: # if ISBAD, then apply QC_flag=3
