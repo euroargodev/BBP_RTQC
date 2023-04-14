@@ -23,7 +23,7 @@ B_PRES_THRESH = 100                         # [dbar] this is to avoid flagging p
 # High-Deep Value
 C_DEPTH_THRESH = 700          # [dbar] pressure threshold below which the test acts
 C_DEEP_BBP700_THRESH = 0.0005 # [1/m] threshold for bbp at depth
-C_N_of_ANOM_POINTS = 5        # number of anomalous points required for the test to fail
+C_N_DEEP_POINTS = 5        # number of points deeper than C_DEPTH_THRESH required for the test to proceed
 
 # Parking hook
 G_DELTAPRES1 = 50  # [dbar] difference in PRES from parking pressure over which the test is implemented

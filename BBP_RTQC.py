@@ -441,12 +441,12 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
     # for surface BBP in the oligotrophic ocean: median-filtered BBP data at depth
     # are expected to be considerably lower than this threshold value.
     #
-    # Implementation: This tests fails if the median-filtered BBP profile has at 
-    # least a certain number (C_N_of_ANOM_POINTS = 5) of anomalous points 
-    # (medfilt(BBP700) > C_DEEP_BBP700_THRESH = 0.0005 m-1) below a threshold 
-    # depth (C_DEPTH_THRESH = 700 dbar). Note that this test can only be implemented 
-    # if the profile reaches a maximum pressure greater than 700 dbar. Variables 
-    # in capital letters represent parameters used by each test that can be modified, if needed.
+    # Implementation: This tests fails if the BBP profile has at 
+    # least a certain number (C_N_DEEP_POINTS = 5) of points 
+    # below a threshold depth (C_DEPTH_THRESH = 700 dbar) and if the median 
+    # of these deep median-filtered BBP values is above C_DEEP_BBP700_THRESH. 
+    # Note that this test can only be implemented 
+    # if the profile reaches a maximum pressure greater than 700 dbar. 
     #
     # Flagging: If the test fails, a QC flag of 3 is applied to the entire profile. 
     # High deep BBP values can result from a variety of reasons, including natural causes, 
@@ -464,7 +464,7 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
     # this is the test
     iDEEP = np.where(PRES > C_DEPTH_THRESH)[0] # find deep part of the profile
     nPointsBelow700dbar = len(iDEEP) # number of points below C_DEPTH_THRESH 
-    if nPointsBelow700dbar >= C_N_of_ANOM_POINTS: # check if we have enough points at depth 
+    if nPointsBelow700dbar >= C_N_DEEP_POINTS: # check if we have enough points at depth 
         if np.nanmedian(BBPmf1[iDEEP]) > C_DEEP_BBP700_THRESH: # check if median value at depth is greater than threshold
             ISBAD = np.where(BBPmf1)[0] # flag entire profile
 
@@ -476,11 +476,11 @@ def BBP_High_Deep_Values_test(BBPmf1, PRES, QC_Flags, QC_1st_failed_test,
         if VERBOSE:
             print('Failed High_Deep_Values_test')
             print('applying QC=' + str(QC) + '...')
-
+ 
     if (PLOT) & (FAILED):
                 plot_failed_QC_test(BBPmf1, BBPmf1, PRES, ISBAD, QC_Flags, QC_1st_failed_test[QC_TEST_CODE],
                                     QC_TEST_CODE, fn, SAVEPLOT, VERBOSE)
-
+ 
 
 
     return QC_Flags, QC_1st_failed_test
