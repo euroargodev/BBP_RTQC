@@ -47,7 +47,7 @@ def test_tests(ia):
     PRES = np.asarray(a[ia]['input']['PRES'])
     if code == 'G':
         maxPRES = np.asarray(a[ia]['input']['maxPRES'])
-        PARK_PRES = np.asarray(a[ia]['input']['PARK_PRES'])
+        parkPRES = np.asarray(a[ia]['input']['parkPRES'])
     if code == 'E':
         maxPRES = np.asarray(a[ia]['input']['maxPRES'])
     if code == 'H':
@@ -104,7 +104,7 @@ def test_tests(ia):
     #                                                                             'test_tests')
     elif code == 'G':
         #### Parking Hook
-        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES,
+        QC_FLAGS_OUT, BBP_QC_failed_test = BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, parkPRES,
                                                                         np.ones(BBP.shape),
                                                                         BBP_QC_failed_test,
                                                                         'test_tests')
@@ -582,12 +582,12 @@ def BBP_Missing_Data_test(BBP, PRES, maxPRES, QC_Flags, QC_1st_failed_test,
 
 ##################################################################
 ##################################################################
-def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1st_failed_test,
+def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, parkPRES, QC_Flags, QC_1st_failed_test,
                           fn, PLOT=False, SAVEPLOT=False, VERBOSE=False):
     # BBP: nparray with all BBP data
     # BBPmf1: nparray with medfilt BBP data
     # maxPRES: maximum pressure recorded in this profile
-    # PARK_PRES: programmed parking pressure for this profile
+    # parkPRES: programmed parking pressure for this profile
     # QC_Flags: array with QC flags
     # QC_flag_1st_failed_test: array with info on which test failed QC_TEST_CODE
     # fn: name of corresponding B-file
@@ -600,12 +600,12 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
     # maximum pressure of the profile. This could indicate that particles 
     # have accumulated on the sensor or the float and that are released when the float starts ascending.
     # 
-    # Implementation: First the parking pressure (PARK_PRES) is extracted 
+    # Implementation: First the parking pressure (parkPRES) is extracted 
     # from the metadata file. Then, we verify that the vertical resolution of
-    # the data near PARK_PRES is greater than G_DELTAPRES2 = 20 dbar: if it is not, 
+    # the data near parkPRES is greater than G_DELTAPRES2 = 20 dbar: if it is not, 
     # the test cannot be applied to this profile. If the vertical resolution is sufficient, 
     # we verify that the maximum pressure of the profile is less than G_DELTAPRES0 (100 dbar) different 
-    # from PARK_PRES (i.e., that PARK_PRES ~= max(PRES)), i.e., that the profile starts 
+    # from parkPRES (i.e., that parkPRES ~= max(PRES)), i.e., that the profile starts 
     # from the parking pressure. If it does, a pressure range iPRESmed 
     # (max(PRES) - G_DELTAPRES2 > PRES >= max(PRES) - G_DELTAPRES1, with G_DELTAPRES1 = 50 dbar) 
     # is defined over which the baseline for the test will be calculated. This baseline 
@@ -623,8 +623,8 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
     QC_TEST_CODE = 'G'
     ISBAD = np.array([]) # flag for noisy profile
 
-    if (np.isnan(maxPRES)) | (np.isnan(PARK_PRES)):
-        if VERBOSE: print('WARNING:\nmaxPRES='+str(maxPRES)+' dbars,\nPARK_PRES='+str(PARK_PRES))
+    if (np.isnan(maxPRES)) | (np.isnan(parkPRES)):
+        if VERBOSE: print('WARNING:\nmaxPRES='+str(maxPRES)+' dbars,\nparkPRES='+str(parkPRES))
         ipdb.set_trace()
 
 
@@ -636,8 +636,8 @@ def BBP_Parking_hook_test(BBP, BBPmf1, PRES, maxPRES, PARK_PRES, QC_Flags, QC_1s
         return QC_Flags, QC_1st_failed_test
 
 
-    # check if max PRES is 'close' (i.e., within 100 dbars) to PARK_PRES
-    if abs(maxPRES - PARK_PRES) >= G_DELTAPRES0:
+    # check if max PRES is 'close' (i.e., within 100 dbars) to parkPRES
+    if abs(maxPRES - parkPRES) >= G_DELTAPRES0:
         return QC_Flags, QC_1st_failed_test
 
 
@@ -830,8 +830,8 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
         if VERBOSE: print('no BBP700 for this cycle')
         ds.close()
         # set returned values to flag
-        PRES = BBP700 = COUNTS = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
-        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan, COUNTS
+        PRES = BBP700 = COUNTS = JULD = LAT = LON = BBP700mf1 = miss_no_prof = parkPRES = maxPRES = innan = -12345678
+        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, parkPRES, maxPRES, innan, COUNTS
         
 
 
@@ -843,8 +843,8 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
     else:
         if VERBOSE: print("this profile has less than 5 data points: skipping ")
         # set returned values to flag
-        PRES = BBP700 = COUNTS = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
-        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan, COUNTS
+        PRES = BBP700 = COUNTS = JULD = LAT = LON = BBP700mf1 = miss_no_prof = parkPRES = maxPRES = innan = -12345678
+        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, parkPRES, maxPRES, innan, COUNTS
 
     COUNTS = ds.BETA_BACKSCATTERING700[N_PROF].values
     BBP700 = ds.BBP700[N_PROF].values
@@ -857,8 +857,8 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
 #        if VERBOSE: print('no PRES_ADJUSTED for this cycle')
 #        ds.close()
 #        # set returned values to flag
-#        PRES = BBP700 = COUNTS = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
-#        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan, COUNTS
+#        PRES = BBP700 = COUNTS = JULD = LAT = LON = BBP700mf1 = miss_no_prof = parkPRES = maxPRES = innan = -12345678
+#        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, parkPRES, maxPRES, innan, COUNTS
     PRES = ds.PRES[N_PROF].values
     JULD = ds.JULD[N_PROF].values
     LAT = ds.LATITUDE[N_PROF].values
@@ -880,8 +880,8 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
     if ~np.all(miss_no_prof==miss_no_prof[0]):
         print("different mission numbers in this profile: skipping float")
         # set returned values to flag
-        PRES = BBP700 = COUNTS = JULD = LAT = LON = BBP700mf1 = miss_no_prof = PARK_PRES = maxPRES = innan = -12345678
-        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan, COUNTS
+        PRES = BBP700 = COUNTS = JULD = LAT = LON = BBP700mf1 = miss_no_prof = parkPRES = maxPRES = innan = -12345678
+        return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, parkPRES, maxPRES, innan, COUNTS
     else:
         miss_no_prof = int(miss_no_prof[0])
 
@@ -895,16 +895,16 @@ def rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE=False):
 
     # find Park Pressure in META file
     iParkPres = np.where(ds_config.CONFIG_PARAMETER_NAME.astype('str').str.contains('CONFIG_ParkPressure_dbar'))[0][0]
-    PARK_PRES = ds_config.CONFIG_PARAMETER_VALUE.values[i_miss_no,iParkPres]
-    if np.isnan(PARK_PRES):
-        # assume PARK_PRES=1000 dbars
-        PARK_PRES = 1000.
+    parkPRES = ds_config.CONFIG_PARAMETER_VALUE.values[i_miss_no,iParkPres]
+    if np.isnan(parkPRES):
+        # assume parkPRES=1000 dbars
+        parkPRES = 1000.
     maxPRES = np.nanmax(PRES)
 
     # close dataset
     ds.close()
 
-    return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan, COUNTS
+    return PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, parkPRES, maxPRES, innan, COUNTS
 
 
 # function to apply tests and plot results (needed in function form for parallel processing)
@@ -972,7 +972,7 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
             print(fn_p)
 
         # read BBP and PRES + other data from profile file
-        [ PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, PARK_PRES, maxPRES, innan, COUNTS] = rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE)
+        [ PRES, BBP700, JULD, LAT, LON, BBP700mf1, miss_no_prof, parkPRES, maxPRES, innan, COUNTS] = rd_BBP(fn_p, miss_no_float, ds_config, VERBOSE)
         if np.any(PRES==-12345678):
             continue
 
@@ -994,7 +994,7 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
         # BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Surface_hook_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
 
         # PARKING-HOOK TEST for BBP700
-        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Parking_hook_test(BBP700, BBP700mf1, PRES, maxPRES, PARK_PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
+        BBP700_QC_flag, BBP700_QC_1st_failed_test = BBP_Parking_hook_test(BBP700, BBP700mf1, PRES, maxPRES, parkPRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
 
         # BBP_NOISY_PROFILE TEST
         BBP700_QC_flag, BBP700_QC_1st_failed_test, rel_res = BBP_Noisy_profile_test(BBP700, BBP700mf1, PRES, BBP700_QC_flags, BBP700_QC_1st_failed_test, fn_p, PLOT, SAVEPLOT, VERBOSE)
@@ -1034,7 +1034,7 @@ def QC_wmo(iwmo, PLOT=False, SAVEPLOT=False, SAVEPKL=False, VERBOSE=False):
         del prof
         
     # add META variables at the end
-    all_PROFS.extend([{'PARK_PRES':PARK_PRES, 
+    all_PROFS.extend([{'parkPRES':parkPRES, 
                        'SENSOR_MODEL':SENSOR_MODEL, 
                        'SENSOR_MAKER':SENSOR_MAKER, 
                        'SENSOR_SERIAL_NO':SENSOR_SERIAL_NO, 
